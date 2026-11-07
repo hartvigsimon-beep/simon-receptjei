@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simon Receptjei</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Raleway:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+}
+.wrap {
+  max-width: 860px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+  display: grid; gap: 28px;
+}
+header { display: grid; gap: 8px; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(36px, 7vw, 60px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 0; max-width: 60ch; }
+
+nav.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab {
+  --c: var(--lean); --s: var(--lean-soft);
+  font: 600 15px/1 var(--font-body); color: var(--ink);
+  background: transparent; border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 10px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+}
+.tab[data-cat="kozepes"] { --c: var(--mid); --s: var(--mid-soft); }
+.tab[data-cat="comfort"] { --c: var(--comfort); --s: var(--comfort-soft); }
+.tab .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.tab .count { font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--s); border-color: var(--c); }
+.tab:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+
+.cat-head { display: grid; gap: 4px; }
+.cat-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 28px; margin: 0; }
+.cat-head p { margin: 0; color: var(--muted); }
+
+.list { display: grid; gap: 20px; }
+.recipe {
+  --c: var(--lean); --s: var(--lean-soft);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 24px; display: grid; gap: 24px; min-width: 0;
+}
+.recipe[data-cat="kozepes"] { --c: var(--mid); --s: var(--mid-soft); }
+.recipe[data-cat="comfort"] { --c: var(--comfort); --s: var(--comfort-soft); }
+.r-top { display: grid; gap: 6px; }
+.badge { justify-self: start; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--c); background: var(--s); padding: 4px 10px; border-radius: 999px; }
+.recipe h3 { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1.15; margin: 0; text-wrap: balance; }
+.recipe .desc { margin: 0; color: var(--muted); }
+.meta { font-size: 14px; color: var(--muted); }
+
+.part { display: grid; gap: 18px; padding-top: 22px; border-top: 1px solid var(--line); min-width: 0; }
+.part h3.part-title { font-size: 22px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.part h3.part-title .sub { font-family: var(--font-body); font-size: 14px; color: var(--muted); }
+
+.macros { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.macro { background: var(--surface); padding: 12px 14px; display: grid; gap: 2px; }
+.macro .v { font-family: var(--font-data); font-weight: 600; font-size: 22px; font-variant-numeric: tabular-nums; }
+.macro .v small { font-size: 13px; font-weight: 400; color: var(--muted); }
+.macro .l { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.macro:first-child .v { color: var(--c); }
+
+h4 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 10px; color: var(--muted); }
+.wrap > *, .view-grid > *, .list > *, .recipe > *, .part > *, .summary > * { min-width: 0; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.table-scroll th:first-child, .table-scroll td:first-child { position: sticky; left: 0; background: var(--surface); z-index: 1; max-width: 46vw; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 520px; }
+th, td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+td.num { font-family: var(--font-data); font-size: 14px; }
+td .amt { color: var(--muted); font-family: var(--font-data); font-size: 13px; margin-left: 6px; }
+tfoot td { font-weight: 700; border-bottom: none; border-top: 2px solid var(--ink); }
+
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 14px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+ol.steps li::before { content: counter(s); font-family: var(--font-data); font-weight: 600; font-size: 14px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--s); color: var(--c); }
+ol.steps b { display: block; }
+ol.steps span { color: var(--muted); }
+.note { background: var(--s); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+
+.summary { background: var(--s); border-radius: 12px; padding: 20px; display: grid; gap: 18px; min-width: 0; }
+.summary h3 { font-size: 22px; }
+.summary .table-scroll { background: var(--surface); border-radius: 10px; padding: 4px 8px; }
+.summary .macros { background: var(--line); }
+tr.group td { font-weight: 600; }
+
+.view-grid { display: grid; gap: 18px; }
+.cat-rule { font-size: 13px; font-weight: 600; color: var(--c); }
+table.mini tr.other td { opacity: .75; }
+table.mini tr[data-cat="extra-lean"] { --c: var(--lean); }
+table.mini tr[data-cat="kozepes"] { --c: var(--mid); }
+table.mini tr[data-cat="comfort"] { --c: var(--comfort); }
+table.mini tr.vrow td, table.mini td.ratio-cell { color: var(--c); }
+table.mini tr.vrow small { font-weight: 500; font-size: 12px; }
+.variant-btn[data-cat="extra-lean"] { --c: var(--lean); }
+.variant-btn[data-cat="kozepes"] { --c: var(--mid); }
+.variant-btn[data-cat="comfort"] { --c: var(--comfort); }
+.variant-switch { display: flex; flex-wrap: wrap; gap: 8px; }
+.variant-btn {
+  font: 600 15px/1 var(--font-body); color: var(--ink); cursor: pointer;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; padding: 11px 18px;
+}
+.variant-btn:hover { border-color: var(--c); }
+.variant-btn[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: var(--surface); }
+.variant-btn:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+.back { justify-self: start; color: var(--muted); text-decoration: none; font-weight: 600; font-size: 15px; padding: 6px 0; }
+.back:hover { color: var(--ink); }
+
+.cats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.cat-card, .r-card {
+  --c: var(--lean); --s: var(--lean-soft);
+  color: var(--ink); text-decoration: none; background: var(--surface);
+  border: 1.5px solid var(--line); border-radius: 14px; padding: 20px;
+  display: grid; gap: 8px; align-content: start; min-width: 0;
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.cat-card[data-cat="kozepes"], .r-card[data-cat="kozepes"] { --c: var(--mid); --s: var(--mid-soft); }
+.cat-card[data-cat="comfort"], .r-card[data-cat="comfort"] { --c: var(--comfort); --s: var(--comfort-soft); }
+.cat-card:hover, .r-card:hover { border-color: var(--c); background: var(--s); }
+.cat-card:focus-visible, .r-card:focus-visible, .back:focus-visible { outline: 2px solid var(--c, var(--lean)); outline-offset: 2px; }
+.cat-card .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
+.cat-name { font-family: var(--font-display); font-size: 26px; line-height: 1.1; }
+.cat-blurb { color: var(--muted); font-size: 15px; }
+.cat-count { font-family: var(--font-data); font-size: 13px; color: var(--c); font-weight: 600; margin-top: 4px; }
+
+.r-list { display: grid; gap: 12px; }
+.r-card { border-left: 5px solid var(--c); }
+.r-name { font-family: var(--font-display); font-size: 22px; line-height: 1.15; }
+.r-desc { color: var(--muted); font-size: 15px; }
+table.mini { min-width: 0; width: 100%; font-size: 14px; table-layout: fixed; }
+table.mini th, table.mini td { padding: 6px 4px; text-align: right; }
+table.mini th { font-size: 11.5px; text-transform: none; letter-spacing: 0; line-height: 1.25; vertical-align: bottom; }
+table.mini th:first-child, table.mini td:first-child { text-align: right; position: static; }
+table.mini tr.vrow td { text-align: left; font-family: var(--font-body); font-weight: 600; font-size: 13px; color: var(--c); padding-top: 10px; border-bottom: none; }
+table.mini tbody tr:last-child td { border-bottom: none; }
+.mini-note { font-size: 12px; color: var(--muted); }
+td.ratio-cell, .macro.ratio .v { color: var(--c); font-weight: 600; }
+.macros { grid-template-columns: repeat(5, minmax(0,1fr)); }
+.r-stats { font-family: var(--font-data); font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.r-stats b { color: var(--c); }
+.r-stats i { font-style: normal; }
+
+@media (max-width: 680px) { .cats { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .macros { grid-template-columns: repeat(2, minmax(0,1fr)); } .macro.ratio { grid-column: 1 / -1; } }
+@media (prefers-reduced-motion: reduce) { .cat-card, .r-card { transition: none; } }
+
+.empty { border: 1.5px dashed var(--line); border-radius: 14px; padding: 32px 24px; text-align: center; color: var(--muted); display: grid; gap: 6px; }
+.empty strong { color: var(--ink); font-family: var(--font-display); font-weight: 400; font-size: 20px; }
+
+/* Szerkeszthető hozzávaló-sorok, 100 g-os buborék */
+.hint { font-size: 13px; color: var(--muted); margin: -4px 0 10px; }
+tr.ing { cursor: pointer; }
+tr.ing:not(.editing):hover td, tr.ing:focus-visible td { background: var(--s); }
+tr.ing:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+tr.ing.edited td.num { color: var(--c); font-weight: 600; }
+.amt-new { color: var(--c) !important; font-weight: 600; }
+.amt-old { display: block; font-size: 12px; color: var(--muted); text-decoration: line-through; }
+tr.ing.edited td:first-child { box-shadow: inset 4px 0 0 var(--c); }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.ed-badge { background: var(--surface) !important; border: 1.5px dashed var(--c); }
+.qty-l { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.qty-in { width: 76px; font: 500 14px/1.2 var(--font-data); text-align: right; padding: 6px 7px; border: 1.5px solid var(--c); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.qty-in:focus { outline: 2px solid var(--c); outline-offset: 1px; }
+.edit-note { display: block; font-size: 12px; color: var(--muted); margin-top: 6px; max-width: 34ch; white-space: normal; }
+.per-l, .live { display: block; font-size: 11.5px; color: var(--muted); margin-top: 3px; font-family: var(--font-data); }
+.live { color: var(--c); font-weight: 600; }
+.ed-tag { display: inline-block; margin-left: 8px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--c); background: var(--s); border-radius: 999px; padding: 2px 7px; vertical-align: 1px; }
+.table-scroll tr.editing td { background: var(--s); vertical-align: top; }
+.mac-in { width: 68px; font: 500 14px/1.2 var(--font-data); text-align: right; padding: 6px 7px; border: 1.5px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.mac-in:focus { outline: none; border-color: var(--c); }
+.edit-actions { display: flex; gap: 6px; margin-top: 8px; }
+.mini-btn { font: 600 13px/1 var(--font-body); padding: 7px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.mini-btn.save-ing { background: var(--c); border-color: var(--c); color: var(--surface); }
+.mini-btn:focus-visible, .reset-btn:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+.edit-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; background: var(--s); border: 1px solid var(--c); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+.reset-btn { font: 600 14px/1 var(--font-body); padding: 9px 14px; border-radius: 999px; border: 1.5px solid var(--c); background: var(--surface); color: var(--c); cursor: pointer; }
+.reset-btn:hover { background: var(--c); color: var(--surface); }
+.tip { position: fixed; z-index: 50; pointer-events: none; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 10px 12px; font-size: 13px; max-width: 280px; box-shadow: 0 6px 20px rgb(0 0 0 / .2); display: grid; gap: 4px; }
+.tip[hidden] { display: none; }
+.tip-h { font-weight: 700; }
+.tip-sub { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+.tip-grid { display: grid; grid-template-columns: auto auto; gap: 2px 16px; }
+.tip-grid b { font-family: var(--font-data); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 560px) {
+  .macros { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .recipe { padding: 18px; }
+  .summary { padding: 14px; }
+}
+
+/* ===== Simon Receptjei Szalag ===== */
+/* Layout: homokszínű lap, mélyerdő-zöld szöveg és fejléc, a kategóriák álló színes szalagok nagy számokkal, a makrók vízszintes szalagsorban */
+:root {
+  --bg: #efe5d3;
+  --surface: #f8f1e5;
+  --cream: #f2e6d6;
+  --ink: #0f3d3a;
+  --muted: #5d6c69;
+  --line: #dccdb4;
+  --hero: #0f3d3a;
+  --steel: #3f5a62;
+  --lean: #1d6f64;   --lean-soft: #d5e8e1;   --lean-fill: #2b7f74;   --on-lean: #f2e6d6;
+  --mid: #9b6605;    --mid-soft: #f8e3b8;    --mid-fill: #f4b13b;    --on-mid: #0f3d3a;
+  --comfort: #b8492f; --comfort-soft: #f6d5cb; --comfort-fill: #e0745e; --on-comfort: #0f3d3a;
+  --font-display: "Bebas Neue", "Oswald", Impact, "Arial Narrow", sans-serif;
+  --font-body: "Raleway", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c2422; --surface: #12322f; --cream: #f2e6d6; --ink: #f2e6d6; --muted: #a8b7b1; --line: #24504b;
+    --hero: #3f5a62; --steel: #5f8089;
+    --lean: #63c6b5; --lean-soft: #17403a; --lean-fill: #2b7f74; --on-lean: #f2e6d6;
+    --mid: #f4b13b; --mid-soft: #3d3218; --mid-fill: #f4b13b; --on-mid: #0f3d3a;
+    --comfort: #f2917a; --comfort-soft: #42271f; --comfort-fill: #e0745e; --on-comfort: #0f3d3a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c2422; --surface: #12322f; --cream: #f2e6d6; --ink: #f2e6d6; --muted: #a8b7b1; --line: #24504b;
+  --hero: #3f5a62; --steel: #5f8089;
+  --lean: #63c6b5; --lean-soft: #17403a; --lean-fill: #2b7f74; --on-lean: #f2e6d6;
+  --mid: #f4b13b; --mid-soft: #3d3218; --mid-fill: #f4b13b; --on-mid: #0f3d3a;
+  --comfort: #f2917a; --comfort-soft: #42271f; --comfort-fill: #e0745e; --on-comfort: #0f3d3a;
+  color-scheme: dark;
+}
+body { background: var(--bg); font-family: var(--font-body); }
+svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[data-cat] { --c: var(--lean); --s: var(--lean-soft); --fill: var(--lean-fill); --on: var(--on-lean); }
+[data-cat="kozepes"] { --c: var(--mid); --s: var(--mid-soft); --fill: var(--mid-fill); --on: var(--on-mid); }
+[data-cat="comfort"] { --c: var(--comfort); --s: var(--comfort-soft); --fill: var(--comfort-fill); --on: var(--on-comfort); }
+
+.wrap { max-width: 1000px; gap: 30px; }
+.d-head { display: grid; gap: 12px; justify-items: start; }
+.d-head h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(56px, 11vw, 112px); line-height: .9; letter-spacing: .01em; color: var(--ink); }
+.pill-o { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid currentColor; border-radius: 999px; padding: 6px 14px; font-size: 14px; color: var(--comfort); }
+
+/* Főoldal: álló szalagok */
+.ribbons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.ribbon { background: var(--fill); color: var(--on); text-decoration: none; border-radius: 28px; padding: 26px 24px 24px; min-height: 300px; display: grid; align-content: end; gap: 2px; transition: transform .2s; }
+.ribbon:hover { transform: translateY(-4px); }
+.ribbon:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+/* Kivágott sarok külön kis csempével (a mintakép alapján): a blokk sarkából egy lekerekített négyzet hiányzik, benne egy kis gomb ül */
+.notch { --t: 58px; --g: 10px; --cut: calc(var(--t) + var(--g)); --rr: 22px; --fr: 22px; position: relative; }
+.notch-cut { position: absolute; top: -1px; right: -1px; width: calc(var(--cut) + 2px); height: calc(var(--cut) + 2px); background: var(--bg); border-bottom-left-radius: var(--rr); pointer-events: none; }
+.notch::before, .notch::after { content: ""; position: absolute; width: var(--fr); height: var(--fr); pointer-events: none;
+  background: radial-gradient(circle at 0 100%, transparent calc(var(--fr) - .5px), var(--bg) var(--fr)); }
+.notch::before { top: 0; right: var(--cut); }
+.notch::after { top: var(--cut); right: 0; }
+.notch-tile { position: absolute; top: 0; right: 0; width: var(--t); height: var(--t); border-radius: 18px; background: var(--tile-bg, var(--fill)); color: var(--tile-fg, var(--on)); display: grid; place-items: center; text-decoration: none; transition: transform .2s; }
+.notch-tile svg { width: 22px; height: 22px; }
+.notch.tl .notch-cut { right: auto; left: -1px; border-bottom-left-radius: 0; border-bottom-right-radius: var(--rr); }
+.notch.tl::before, .notch.tl::after { background: radial-gradient(circle at 100% 100%, transparent calc(var(--fr) - .5px), var(--bg) var(--fr)); }
+.notch.tl::before { right: auto; left: var(--cut); }
+.notch.tl::after { right: auto; left: 0; }
+.notch.tl .notch-tile { right: auto; left: 0; }
+.ribbon:hover .notch-tile { transform: translate(3px, -3px); }
+a.notch-tile:hover { transform: translate(-3px, -3px); }
+a.notch-tile:focus-visible { outline: 3px solid var(--fill); outline-offset: 3px; }
+.rd-hero { --tile-bg: var(--hero); --tile-fg: var(--cream); }
+/* A címkesor a sarokcsempe mellett, annak magasságában középre igazítva */
+.rd-tags { margin-left: calc(var(--cut) - var(--hp) + 10px); margin-top: -24px; min-height: var(--t); align-items: center; }
+.rd-hero .rd-tags + h1 { margin-top: 18px; }
+.view-grid > .back:has(+ .recipe-d) { display: none; }
+.rb-count { font-family: var(--font-display); font-size: clamp(96px, 13vw, 150px); line-height: .8; }
+.rb-unit { font-family: var(--font-data); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; margin-bottom: 14px; }
+.rb-name { font-family: var(--font-display); font-size: 40px; line-height: 1; letter-spacing: .02em; }
+.rb-rule { font-size: 14px; font-weight: 600; opacity: .85; }
+
+.rank { display: grid; gap: 14px; }
+.rank-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rank-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 44px; margin: 0; line-height: 1; }
+.rank-list { display: grid; gap: 8px; }
+.rank-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto auto 44px; gap: 16px; align-items: center; padding: 6px 6px 6px 6px; background: var(--surface); border-radius: 999px; color: var(--ink); text-decoration: none; transition: background .15s; }
+.rank-row:hover { background: var(--s); }
+.rank-row:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+.rk-n { height: 52px; border-radius: 999px; background: var(--fill); color: var(--on); display: grid; place-items: center; font-family: var(--font-display); font-size: 30px; padding-top: 3px; }
+.rk-name { font-weight: 700; min-width: 0; display: grid; }
+.rk-name small { font-weight: 500; font-size: 12.5px; color: var(--muted); }
+.rk-kcal { font-family: var(--font-data); font-size: 13px; color: var(--muted); }
+.rk-ratio { font-family: var(--font-display); font-size: 28px; color: var(--c); line-height: 1; }
+.rk-go { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; color: var(--muted); }
+.rank-row:hover .rk-go { border-color: var(--c); color: var(--c); }
+
+/* Kategórialista */
+.back { justify-self: start; border: 1.5px solid var(--line); border-radius: 999px; padding: 8px 16px; color: var(--ink); }
+.back:hover { border-color: var(--ink); }
+.cat-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 64px; line-height: .95; }
+.r-card { background: var(--surface); border: 0; border-left: 0; border-radius: 26px; padding: 0 0 18px; overflow: hidden; gap: 10px; }
+.r-card:hover { background: var(--surface); box-shadow: 0 0 0 2px var(--c) inset; }
+.r-card > :not(table) { padding-inline: 22px; }
+.r-card table.mini { width: calc(100% - 44px); margin-inline: 22px; }
+.r-name { font-family: var(--font-display); font-size: 32px; letter-spacing: .01em; background: var(--fill); color: var(--on); padding-block: 16px 12px; }
+
+/* Receptoldal */
+.recipe-d { display: grid; gap: 18px; min-width: 0; }
+.rd-hero { --hp: 32px; background: var(--hero); color: var(--cream); border-radius: 30px; padding: 24px var(--hp) 32px; display: grid; gap: 14px; }
+.rd-hero h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(48px, 8vw, 88px); line-height: .92; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+.rd-hero p { margin: 0; max-width: 62ch; opacity: .85; font-size: 17px; }
+.rd-tags, .rd-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.rd-meta .pill { font-weight: 500; }
+.pill { display: inline-flex; align-items: center; gap: 7px; border: 1.5px solid rgb(242 230 214 / .45); border-radius: 999px; padding: 6px 13px; font-size: 13.5px; font-weight: 600; }
+.pill svg { width: 15px; height: 15px; }
+.cat-pill { background: var(--fill); color: var(--on); border-color: var(--fill); }
+.cat-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.ed-pill { background: var(--cream); color: #0f3d3a; border-color: var(--cream); }
+.rd-hero .variant-btn { background: transparent; color: var(--cream); border-color: rgb(242 230 214 / .45); }
+.rd-hero .variant-btn[aria-pressed="true"] { background: var(--fill); border-color: var(--fill); color: var(--on); }
+
+.bands { display: grid; grid-template-columns: 1.35fr repeat(3, minmax(0, 1fr)) 1.15fr; gap: 10px; }
+.band { border-radius: 24px; padding: 18px 18px 16px; display: grid; align-content: space-between; gap: 18px; min-height: 150px; min-width: 0; }
+.bn { font-family: var(--font-display); font-size: clamp(44px, 6vw, 64px); line-height: .85; }
+.bn small, .rk-ratio small { font-family: var(--font-data); font-size: .3em; letter-spacing: 0; margin-left: 4px; }
+#view { display: grid; gap: 34px; }
+.bl { font-family: var(--font-data); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.b-kcal { background: var(--fill); color: var(--on); }
+.b-p { background: #0f3d3a; color: #f2e6d6; }
+.b-c { background: var(--steel); color: #f2e6d6; }
+.b-f { background: var(--cream); color: #0f3d3a; box-shadow: 0 0 0 1.5px #d6c6aa inset; }
+.b-r { background: var(--surface); color: var(--c); box-shadow: 0 0 0 2px var(--fill) inset; }
+
+.part { background: var(--surface); border: 0; border-radius: 26px; padding: 24px; }
+.part h3.part-title { font-family: var(--font-display); font-weight: 400; font-size: 38px; letter-spacing: .01em; margin: 0; }
+.part h3.part-title .sub { font-family: var(--font-body); font-size: 14px; }
+h4 { font-family: var(--font-data); font-weight: 500; }
+ol.steps li::before { background: var(--fill); color: var(--on); font-family: var(--font-display); font-size: 18px; padding-top: 2px; }
+.note { background: var(--s); border-radius: 20px; }
+.summary { background: var(--surface); border-radius: 26px; }
+.summary h3 { font-family: var(--font-display); font-weight: 400; font-size: 38px; margin: 0; }
+.table-scroll th:first-child, .table-scroll td:first-child { background: var(--surface); }
+.mini-btn.save-ing { background: var(--fill); border-color: var(--fill); color: var(--on); }
+.edit-bar { border-color: var(--fill); }
+
+@media (min-width: 1000px) {
+  .part { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); column-gap: 30px; }
+  .part h3.part-title { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .ribbons { grid-template-columns: minmax(0, 1fr); }
+  .ribbon { min-height: 0; padding-top: 70px; }
+  .bands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .b-r { grid-column: 1 / -1; }
+  .band { min-height: 0; }
+  .rank-row { grid-template-columns: 52px minmax(0, 1fr) auto; }
+  .rk-kcal, .rk-go { display: none; }
+  .rd-hero { --hp: 20px; }
+  .part { padding: 18px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .ribbon, .rank-row { transition: none; } .ribbon:hover { transform: none; } }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="d-head">
+    <span class="pill-o">Saját receptgyűjtemény · makrókkal</span>
+    <h1>Simon Receptjei</h1>
+    <p class="lede">Receptek három kategóriában, makrókkal adagonként és hozzávalónként.</p>
+  </header>
+  <section id="view"></section>
+</div>
+
+<script>
+const CATS = {
+  "extra-lean": { name: "Extra lean", blurb: "Magas fehérje, minimális zsír.", rule: "13 g fehérje / 100 kcal felett" },
+  "kozepes":    { name: "Közepes",    blurb: "Kiegyensúlyozott fogások.",      rule: "8–13 g fehérje / 100 kcal" },
+  "comfort":    { name: "Comfort",    blurb: "Kiadósabb, laktatóbb ételek.",   rule: "8 g fehérje / 100 kcal alatt" }
+};
+
+// Makrók: becsült értékek, tápanyagtáblázatok alapján (kcal, fehérje g, szénhidrát g, zsír g)
+// Egy recept több részből (parts) állhat; a végén összesítő külön részenként és együtt.
+const RECIPES = [
+  {
+    id: "spenotfozelek-fasirttal",
+    cat: "kozepes",
+    title: "Spenótfőzelék fasírttal",
+    desc: "Keményítővel sűrített spenótfőzelék és sovány, hagymás fasírt.",
+    servings: 2,
+    serveNote: "1 adag = a főzelék fele + 3 fasírt",
+    time: "kb. 50 perc",
+    parts: [
+      {
+        title: "Fasírt",
+        sub: "6 darab",
+        ingredients: [
+          { name: "Darált sertéshús, 7% zsír", amt: "250 g",             kcal: 358, p: 50.0, c: 0.0,  f: 17.5 },
+          { name: "Vöröshagyma",          amt: "75 g (fél nagy fej)", kcal: 30,  p: 0.8,  c: 7.0,  f: 0.1 },
+          { name: "Panírmorzsa",          amt: "15 g",               kcal: 59,  p: 2.0,  c: 10.8, f: 0.8 },
+          { name: "Fokhagyma",            amt: "3 gerezd (9 g)",     kcal: 13,  p: 0.6,  c: 3.0,  f: 0.0 },
+          { name: "Tojásfehérje",         amt: "1,5 tojásból (50 g)", kcal: 26,  p: 5.4,  c: 0.4,  f: 0.1 },
+          { name: "Olajspray",            amt: "1 fújás (max. 1 g)", kcal: 9,   p: 0.0,  c: 0.0,  f: 1.0 },
+          { name: "Só",                   amt: "ízlés szerint",      kcal: 0,   p: 0,    c: 0,    f: 0 }
+        ],
+        steps: [
+          ["Hagyma aprítása", "A vöröshagymát vágd nagyon apróra."],
+          ["Hagyma dinsztelése", "Serpenyőbe egy fújás olajspray, mehet rá a hagyma, sózd meg. Közepes lángon, türelemmel dinszteld, amíg teljesen megpuhul. Ha leég, egy kanál vizet adhatsz hozzá."],
+          ["Massza összeállítása", "A kicsit lehűlt hagymát dolgozd a darált sertéshúshoz, nyomd rá a fokhagymát, add hozzá a tojásfehérjét és a panírmorzsát, majd alaposan gyúrd össze."],
+          ["Formázás", "Vizes kézzel formázz belőle 6 egyforma fasírtot."],
+          ["Sütés", "Sütőpapíros tepsiben 200 °C-on kb. 20 percig, félidőben megfordítva, vagy tapadásmentes serpenyőben oldalanként pár perc alatt."]
+        ]
+      },
+      {
+        title: "Spenótfőzelék",
+        sub: "2 adag",
+        ingredients: [
+          { name: "Fagyasztott spenót",      amt: "300 g",              kcal: 69, p: 8.7, c: 10.8, f: 1.2 },
+          { name: "Fokhagyma",               amt: "4 gerezd (12 g)",    kcal: 18, p: 0.8, c: 4.0,  f: 0.0 },
+          { name: "Étkezési keményítő",      amt: "10 g",               kcal: 36, p: 0.0, c: 9.1,  f: 0.0 },
+          { name: "Víz (a keményítőhöz)",    amt: "60 ml",              kcal: 0,  p: 0,   c: 0,    f: 0 },
+          { name: "Olajspray",               amt: "1 fújás (max. 1 g)", kcal: 9,  p: 0.0, c: 0.0,  f: 1.0 },
+          { name: "Tojásfehérje",            amt: "2 tojásból (66 g)",  kcal: 34, p: 7.2, c: 0.5,  f: 0.1 },
+          { name: "Mandulatej, cukrozatlan", amt: "100 ml",             kcal: 13, p: 0.4, c: 0.3,  f: 1.1 }
+        ],
+        steps: [
+          ["Spenót felolvasztása", "Lassú tűzön, fedő alatt olvaszd fel a spenótot egy lábasban."],
+          ["Fokhagyma pirítása", "Aprítsd fel a fokhagymát, és egy fújás olajspray-n pirítsd illatosra, kb. 1 perc. Ne barnuljon meg."],
+          ["Összemelegítés", "Keverd a fokhagymát a felolvadt spenótba, és melegítsd össze."],
+          ["Sűrítés", "A keményítőt keverd csomómentesre a vízzel, öntsd a spenóthoz, és kevergetve főzd, amíg besűrűsödik."],
+          ["Tojásfehérje és mandulatej", "Kevergetés közben csorgasd bele a tojásfehérjét, majd a mandulatejet. Főzd még pár percig, amíg a fehérje megköt és krémes lesz."]
+        ]
+      }
+    ],
+    note: "Só, bors ízlés szerint. A fasírt sütési módja javaslat. Egy fasírt kb. 83 kcal."
+  },
+  {
+    id: "turogomboc",
+    cat: "kozepes",
+    title: "Túrógombóc",
+    desc: "Nádudvari zsírszegény túróból, útifűmaghéjjal, pirított prézliben forgatva, Jogobella 0% gyümölcsjoghurttal.",
+    servings: 2,
+    serveNote: "1 adag = 3 gombóc + 1 pohár Jogobella 0%",
+    time: "kb. 40 perc + pihentetés",
+    parts: [
+      {
+        title: "Gombóc",
+        sub: "6 darab",
+        ingredients: [
+          { name: "Nádudvari zsírszegény túró", amt: "225 g (1 csomag)", kcal: 227, p: 36.0, c: 4.5, f: 6.5 },
+          { name: "Útifűmaghéj",                amt: "15 g",             kcal: 29,  p: 0.2,  c: 0.6, f: 0.1 },
+          { name: "Tojásfehérje",               amt: "2 tojásból (66 g)", kcal: 34, p: 7.2,  c: 0.5, f: 0.1 },
+          { name: "Citromhéj",                  amt: "fél citromé",      kcal: 1,   p: 0,    c: 0.5, f: 0 },
+          { name: "Vanília aroma",              amt: "egy kis löttyintés", kcal: 5, p: 0,    c: 0,   f: 0 },
+          { name: "Só",                         amt: "1 csipet",         kcal: 0,   p: 0,    c: 0,   f: 0 },
+          { name: "Fahéj és/vagy kardamom",     amt: "ízlés szerint",    kcal: 0,   p: 0,    c: 0,   f: 0 },
+          { name: "Prézli (a forgatáshoz)",     amt: "10 g",             kcal: 40,  p: 1.3,  c: 7.2, f: 0.5 }
+        ],
+        steps: [
+          ["Massza összekeverése", "Keverd össze a túrót, az útifűmaghéjat, a tojásfehérjét, a reszelt citromhéjat, a vanília aromát és egy csipet sót. Fűszerezheted fahéjjal, kardamommal vagy mindkettővel."],
+          ["Pihentetés", "Hagyd állni egy kicsit, hogy az útifűmaghéj megszívja magát és formázható legyen a massza."],
+          ["Formázás", "Gyúrd át, és formázz belőle 6 gombócot."],
+          ["Főzés", "Enyhén sós, lobogó vízbe tedd bele a gombócokat. Amikor feljönnek a víz tetejére, szedd ki őket."],
+          ["Hűlés", "Kiszedve még nagyon puhák, várj pár percet, amíg kicsit megkeményednek."],
+          ["Prézli pirítása", "Közben a prézlit száraz serpenyőben pirítsd aranybarnára. Fűszerezheted ezt is."],
+          ["Forgatás", "A kissé megkeményedett gombócokat forgasd bele a pirított prézlibe."]
+        ]
+      },
+      {
+        title: "Öntet",
+        sub: "Jogobella 0%, eper · 1 pohár / adag",
+        ingredients: [
+          { name: "Jogobella 0% eper gyümölcsjoghurt", amt: "2 × 150 g (2 pohár)", kcal: 138, p: 12.9, c: 15.0, f: 0.3 }
+        ],
+        steps: [
+          ["Tálalás", "A gombócokat a joghurttal öntsd le. Bármelyik Jogobella 0% íz jó, a makrók szinte azonosak."]
+        ]
+      }
+    ],
+    note: "Makrók: túró a csomagolás szerint (100 g-ban 101 kcal, 16 g fehérje), Jogobella 0% 100 g-ban 46 kcal. Az útifűmaghéj kb. 12 g rostot ad, ez nincs a szénhidrátban. Egy gombóc öntet nélkül kb. 56 kcal."
+  },
+  {
+    id: "tonhalas-uborkasalata",
+    cat: "extra-lean",
+    title: "Tonhalas uborkasaláta",
+    desc: "Kígyóuborka sós lében eltett tonhallal és lilahagymával, kétféle öntettel.",
+    servings: 1,
+    time: "kb. 15 perc",
+    parts: [
+      {
+        title: "Saláta",
+        sub: "alap",
+        ingredients: [
+          { name: "Kígyóuborka",                         amt: "1 egész (kb. 350 g)",          kcal: 53,  p: 2.3,  c: 12.6, f: 0.4 },
+          { name: "Twist tonhaldarab natúr lében",       amt: "2 konzerv, 2 × 56 g lecsepegtetve", kcal: 112, p: 25.8, c: 0.8,  f: 0.7 },
+          { name: "Lilahagyma",                          amt: "1 nagyon kicsi vagy fél fej (kb. 40 g)", kcal: 16, p: 0.4, c: 3.7, f: 0.0 }
+        ],
+        steps: [
+          ["Uborka", "Az uborkát szeleteld vékonyra vagy vágd kockára."],
+          ["Tonhal", "A tonhalat csepegtesd le alaposan, és morzsold az uborkához."],
+          ["Hagyma", "A lilahagymát vágd nagyon vékonyra, és keverd hozzá."]
+        ]
+      }
+    ],
+    variants: [
+      {
+        key: "szojas",
+        label: "Szójás öntet",
+        parts: [{
+          title: "Szójás öntet",
+          sub: "szójaszósz, chili, fokhagyma, ecet",
+          ingredients: [
+            { name: "Szójaszósz",  amt: "2 evőkanál (30 ml)", kcal: 16, p: 2.4, c: 1.5, f: 0.0 },
+            { name: "Fokhagyma",   amt: "2 gerezd (6 g)",     kcal: 9,  p: 0.4, c: 2.0, f: 0.0 },
+            { name: "Ecet",        amt: "1 teáskanál (5 ml)", kcal: 1,  p: 0,   c: 0,   f: 0 },
+            { name: "Chili",       amt: "ízlés szerint",      kcal: 2,  p: 0,   c: 0.4, f: 0 }
+          ],
+          steps: [
+            ["Öntet", "Keverd össze a szójaszószt, az ecetet, a zúzott fokhagymát és az apróra vágott chilit."],
+            ["Összeforgatás", "Öntsd a salátára, forgasd össze, és hagyd pár percig állni, hogy átjárja."]
+          ]
+        }]
+      },
+      {
+        key: "joghurtos",
+        label: "Joghurtos öntet",
+        parts: [{
+          title: "Joghurtos öntet",
+          sub: "0,1%-os joghurt, fokhagyma",
+          ingredients: [
+            { name: "Natúr joghurt, 0,1% zsír", amt: "75 ml",              kcal: 28, p: 3.0, c: 3.3, f: 0.1 },
+            { name: "Fokhagyma",                amt: "2 gerezd (6 g)",     kcal: 9,  p: 0.4, c: 2.0, f: 0.0 },
+            { name: "Só, bors",                 amt: "ízlés szerint",      kcal: 0,  p: 0,   c: 0,   f: 0 }
+          ],
+          steps: [
+            ["Öntet", "Keverd simára a joghurtot a zúzott fokhagymával, sóval és borssal."],
+            ["Összeforgatás", "Öntsd a salátára és forgasd össze. Frissen a legjobb, mert az uborka levet enged."]
+          ]
+        }]
+      }
+    ],
+    note: "Tonhal: Twist tonhaldarab natúr lében (80 g-os konzerv, 56 g töltőtömeg), 100 g lecsepegtetve: 100 kcal, 23 g fehérje, 0,7 g szénhidrát, 0,6 g zsír. A szójaszósz és a 0,1%-os joghurt értéke átlagos becslés."
+  },
+  {
+    id: "tonhalas-teszta",
+    cat: "extra-lean",
+    title: "Tonhalas tészta",
+    desc: "Paradicsomos-kapribogyós tonhalszósz, 60 g körettésztával vagy konjak tésztával.",
+    servings: 1,
+    time: "kb. 25 perc",
+    parts: [{
+      title: "Tonhalas szósz",
+      sub: "alap",
+      ingredients: [
+        { name: "Twist tonhaldarab natúr lében", amt: "4 konzerv, 4 × 56 g lecsepegtetve", kcal: 224, p: 51.5, c: 1.6,  f: 1.3 },
+        { name: "Darabolt paradicsom, konzerv",     amt: "400 g (1 doboz)",   kcal: 104, p: 4.8,  c: 18.0, f: 0.8 },
+        { name: "Vöröshagyma",                      amt: "1 fej (kb. 130 g)", kcal: 52,  p: 1.4,  c: 12.1, f: 0.1 },
+        { name: "Kapribogyó (Cucina, Aldi)",        amt: "50 g",              kcal: 16,  p: 1.2,  c: 2.5,  f: 0.4 },
+        { name: "Só, bors, oregánó",                amt: "ízlés szerint",     kcal: 0,   p: 0,    c: 0,    f: 0 }
+      ],
+      steps: [
+        ["Hagyma", "A hagymát vágd apróra, és tapadásmentes serpenyőben egy kanál vízzel párold üvegesre."],
+        ["Tonhal és kapribogyó", "A kapribogyót aprítsd fel kicsit. Add a hagymához a lecsepegtetett tonhalat és a kapribogyót, és pirítsd együtt pár percig."],
+        ["Paradicsom és oregánó", "Amikor megpirult, öntsd rá a darabolt paradicsomot, szórd meg oregánóval, és kb. 10 percig főzd, amíg kicsit besűrűsödik. Sózni óvatosan kell, mert a kapribogyó és a tonhal is sós."]
+      ]
+    }],
+    variants: [
+      { key: "teszta", label: "Körettésztával", parts: [{
+        title: "Körettészta", sub: "60 g száraz",
+        ingredients: [{ name: "Körettészta (Diadal), száraz", amt: "60 g", kcal: 223, p: 19.2, c: 31.2, f: 1.0 }],
+        steps: [["Tészta", "Sós vízben főzd al dentére, szűrd le, és forgasd össze a szósszal."]]
+      }]},
+      { key: "konjak", label: "Konjak tésztával", parts: [{
+        title: "Konjak tészta", sub: "1 adag",
+        ingredients: [{ name: "Konjak tészta, lecsepegtetve", amt: "1 csomag (200 g)", kcal: 16, p: 0.2, c: 0.8, f: 0.2 }],
+        steps: [["Konjak tészta", "Öblítsd le alaposan, 2–3 percig forrald vízben, majd száraz serpenyőben pár percig pirítsd, hogy elpárologjon a víz. Forgasd össze a szósszal."]]
+      }]}
+    ],
+    note: "Javítva a Yazióhoz képest: a hagymánál 1 g volt beírva, de a 52 kcal kb. 130 g hagymának felel meg. Tonhal: Twist tonhaldarab natúr lében (4 × 80 g-os csomag, 4 × 56 g töltőtömeg), 100 g lecsepegtetve: 100 kcal, 23 g fehérje, 0,7 g szénhidrát, 0,6 g zsír."
+  },
+  {
+    id: "gombas-teszta",
+    cat: "kozepes",
+    title: "Gombás csirkés tészta",
+    desc: "Csiperke és csirkecomb krémes sajtkrémes szószban, 60 g körettésztával vagy konjak tésztával.",
+    servings: 1,
+    time: "kb. 30 perc",
+    parts: [{
+      title: "Gombás szósz",
+      sub: "alap",
+      ingredients: [
+        { name: "Csiperkegomba",                     amt: "500 g",  kcal: 110, p: 15.5, c: 11.5, f: 1.5 },
+        { name: "Csirkecomb filé, bőr nélkül",       amt: "260 g",  kcal: 312, p: 51.2, c: 0.0,  f: 10.7 },
+        { name: "Light sajtkrém (Milbona, Lidl)",    amt: "70 g",   kcal: 114, p: 5.3,  c: 2.8,  f: 9.1 },
+        { name: "Mandulatej (Alpro, cukrozatlan)",   amt: "70 ml",  kcal: 9,   p: 0.3,  c: 0.0,  f: 0.8 },
+        { name: "Vöröshagyma",                       amt: "50 g",   kcal: 20,  p: 0.6,  c: 4.7,  f: 0.1 },
+        { name: "Sörélesztőpehely (Biorganik)",      amt: "10 g",   kcal: 32,  p: 4.8,  c: 1.6,  f: 0.5 },
+        { name: "Só, bors",                          amt: "ízlés szerint", kcal: 0, p: 0, c: 0, f: 0 }
+      ],
+      steps: [
+        ["Előkészítés", "A hagymát vágd apróra, a csirkecombot kis kockákra, a gombát szeletekre."],
+        ["Csirke", "Tapadásmentes serpenyőben párold üvegesre a hagymát egy kanál vízzel, majd add hozzá a csirkét, és pirítsd, amíg körbe kifehéredik."],
+        ["Gomba", "Mehet bele a gomba, sózd meg, és közepes lángon főzd, amíg a leve nagyrészt elfő, kb. 10 perc."],
+        ["Krémes szósz", "Keverd bele a sajtkrémet, a mandulatejet és a sörélesztőpelyhet, majd 2–3 percig főzd krémesre. Borsozd."]
+      ]
+    }],
+    variants: [
+      { key: "teszta", label: "Körettésztával", parts: [{
+        title: "Körettészta", sub: "60 g száraz",
+        ingredients: [{ name: "Körettészta (Diadal), száraz", amt: "60 g", kcal: 223, p: 19.2, c: 31.2, f: 1.0 }],
+        steps: [["Tészta", "Sós vízben főzd al dentére, szűrd le, és forgasd össze a szósszal."]]
+      }]},
+      { key: "konjak", label: "Konjak tésztával", parts: [{
+        title: "Konjak tészta", sub: "1 adag",
+        ingredients: [{ name: "Konjak tészta, lecsepegtetve", amt: "1 csomag (200 g)", kcal: 16, p: 0.2, c: 0.8, f: 0.2 }],
+        steps: [["Konjak tészta", "Öblítsd le alaposan, 2–3 percig forrald vízben, majd száraz serpenyőben pár percig pirítsd, hogy elpárologjon a víz. Forgasd össze a szósszal."]]
+      }]}
+    ],
+    note: "A csirkecombot 120 kcal / 100 g-mal számoltam (Yazio: kb. 110), ezért a szósz kb. 25 kcal-lal több, mint a Yazióban."
+  },
+  {
+    id: "avgolemono",
+    cat: "kozepes",
+    title: "Avgolemono",
+    desc: "Görög citromos-tojásos csirkeleves rizzsel.",
+    servings: 1,
+    time: "kb. 40 perc",
+    parts: [{
+      title: "Avgolemono",
+      sub: "1 adag",
+      ingredients: [
+        { name: "Csirkecomb filé, bőr nélkül", amt: "380 g",             kcal: 456, p: 74.9, c: 0.0,  f: 15.6 },
+        { name: "Fehér rizs, nyers",           amt: "75 g",              kcal: 270, p: 5.3,  c: 59.0, f: 0.5 },
+        { name: "Vöröshagyma",                 amt: "70 g",              kcal: 28,  p: 0.8,  c: 6.5,  f: 0.1 },
+        { name: "Tojás",                       amt: "1 db (50 g)",       kcal: 72,  p: 6.3,  c: 0.4,  f: 4.8 },
+        { name: "Tojásfehérje",                amt: "2 tojásból (66 g)", kcal: 34,  p: 7.2,  c: 0.5,  f: 0.1 },
+        { name: "Citromlé",                    amt: "1 citromé (kb. 40 ml)", kcal: 9, p: 0.1, c: 2.8, f: 0.1 },
+        { name: "Só, bors",                    amt: "ízlés szerint",     kcal: 0,   p: 0,    c: 0,    f: 0 }
+      ],
+      steps: [
+        ["Előkészítés", "A hagymát vágd apróra, a csirkecombot falatnyi darabokra."],
+        ["Csirke főzése", "A csirkét és a hagymát tedd fel kb. 1 liter sós vízben (vagy alaplében), és főzd kb. 20 percig."],
+        ["Rizs", "Főzd bele a rizst a levesbe, és főzd puhára, kb. 15 perc."],
+        ["Tojásos-citromos keverék", "Egy tálban habosítsd fel a tojást, a tojásfehérjét és a citromlevet."],
+        ["Temperálás", "Kevergetés közben, merőkanalanként csorgass a tojásos keverékhez a forró levesből, hogy ne csapódjon ki."],
+        ["Besűrítés", "Húzd le a lábast a tűzről, keverd vissza a tojásos-citromos keveréket a levesbe, és pár percig kevergesd, amíg krémesre sűrűsödik. Ne forrald fel újra."]
+      ]
+    }],
+    note: "A citromlevet én pótoltam, mert az avgolemonóhoz kell, de a Yazióban nem szerepelt. A csirkecombot 120 kcal / 100 g-mal számoltam (Yazio: kb. 110)."
+  },
+  {
+    id: "brokkolis-csirkes-sutes",
+    cat: "kozepes",
+    title: "Brokkolis-csirkés sütés",
+    desc: "Pirított csirkemell és brokkoli hagymás-ricottás szószban, edami sajttal sütve.",
+    servings: 2,
+    serveNote: "1 adag = a sütés fele",
+    time: "kb. 50 perc",
+    parts: [{
+      title: "Sütés",
+      sub: "2 adag",
+      ingredients: [
+        { name: "Csirkemell filé",                  amt: "300 g",  kcal: 330, p: 69.0, c: 0.0,  f: 3.6 },
+        { name: "Brokkoli",                         amt: "435 g",  kcal: 148, p: 12.2, c: 17.4, f: 1.7 },
+        { name: "Vöröshagyma",                      amt: "56 g",   kcal: 22,  p: 0.6,  c: 5.2,  f: 0.1 },
+        { name: "Ricotta (Cucina Nobile, Aldi)",    amt: "165 g",  kcal: 177, p: 10.7, c: 5.4,  f: 12.6 },
+        { name: "Edami sajt (Bluedino)",            amt: "37 g",   kcal: 127, p: 9.6,  c: 0.0,  f: 9.8 },
+        { name: "Mandulatej (Alpro, cukrozatlan)",  amt: "150 ml", kcal: 20,  p: 0.7,  c: 0.0,  f: 1.7 },
+        { name: "Sörélesztőpehely (Biorganik)",     amt: "10 g",   kcal: 32,  p: 4.8,  c: 1.6,  f: 0.5 },
+        { name: "Olajspray",                        amt: "1 fújás (max. 1 g)", kcal: 9, p: 0.0, c: 0.0, f: 1.0 },
+        { name: "Só, bors",                         amt: "ízlés szerint", kcal: 0, p: 0, c: 0, f: 0 }
+      ],
+      steps: [
+        ["Előkészítés", "Melegítsd elő a sütőt 200 °C-ra. A csirkemellet vágd kockákra, a brokkolit rózsáira, a hagymát apróra."],
+        ["Csirke pirítása", "Serpenyőbe egy fújás olajspray, és pirítsd körbe a csirkét, majd szedd ki egy tűzálló tálba a brokkoli mellé."],
+        ["Hagyma dinsztelése", "Ugyanabban a serpenyőben dinszteld puhára a hagymát. Ha leég, egy kanál vizet adhatsz hozzá."],
+        ["Szósz", "A dinsztelt hagymára öntsd rá a ricottát, a sörélesztőpelyhet és a mandulatejet, keverd simára, sózd, borsozd."],
+        ["Összeállítás", "Öntsd a szószt a brokkolira és a csirkére, a tetejére reszeld az edamit."],
+        ["Sütés", "200 °C-on kb. 25–30 percig süsd, amíg a brokkoli megpuhul és a sajt megpirul."]
+      ]
+    }],
+    note: "A ricottát a Yazio szerinti 107 kcal / 100 g-mal számoltam. A brokkolit 34 kcal / 100 g-mal számoltam (Yazio kb. 22-vel), ez 148 kcal (nem 96)."
+  },
+  {
+    id: "mapo-tofu",
+    cat: "kozepes",
+    title: "Mapo tofu",
+    desc: "Szecsuáni csípős tofu darált csirkemellel, doubanjianggal és szecsuáni borssal, rizzsel.",
+    servings: 2,
+    serveNote: "1 adag = a mapo tofu fele + a rizs fele",
+    time: "kb. 35 perc",
+    parts: [
+      {
+        title: "Mapo tofu",
+        sub: "2 adag",
+        ingredients: [
+          { name: "Csirkemell, darált",                     amt: "250 g",                kcal: 300, p: 56.3, c: 0.0, f: 6.5 },
+          { name: "Tofu (Soya Line)",                       amt: "300 g",                kcal: 228, p: 24.3, c: 4.8, f: 14.4 },
+          { name: "Doubanjiang (pixiani chilis babpaszta)", amt: "1 teáskanál (kb. 15 g)", kcal: 21, p: 0.9, c: 1.8, f: 1.1 },
+          { name: "Szecsuáni bors",                         amt: "1–2 teáskanál (3 g)",  kcal: 9,   p: 0.3,  c: 1.2, f: 0.3 },
+          { name: "Leveskocka (Knorr)",                     amt: "10 g + 2,5 dl víz",    kcal: 24,  p: 0.8,  c: 2.0, f: 1.4 },
+          { name: "Étkezési keményítő",                     amt: "6 g + 3 evőkanál víz", kcal: 21,  p: 0.0,  c: 5.2, f: 0.0 },
+          { name: "Újhagyma",                               amt: "2 szál (30 g)",        kcal: 10,  p: 0.5,  c: 2.2, f: 0.1 },
+          { name: "Fokhagyma",                              amt: "2 gerezd (6 g)",       kcal: 9,   p: 0.4,  c: 2.0, f: 0.0 },
+          { name: "Szójaszósz",                             amt: "1 teáskanál (5 ml)",   kcal: 3,   p: 0.4,  c: 0.3, f: 0.0 },
+          { name: "Olajspray",                              amt: "1 fújás (max. 1 g)",   kcal: 9,   p: 0.0,  c: 0.0, f: 1.0 }
+        ],
+        steps: [
+          ["Előkészítés", "A tofut vágd 1,5 cm-es kockákra. A darált csirkemellet keverd össze a szójaszósszal. A fokhagymát vágd apróra, az újhagymát karikázd fel, a zöld részét tedd félre a tálaláshoz. A leveskockát oldd fel 2,5 dl forró vízben, a keményítőt keverd csomómentesre 3 evőkanál vízzel."],
+          ["Szecsuáni bors", "Egy fújás olajspray-n, közepes lángon pirítsd a szecsuáni borsot 1–2 percig, amíg sötétebb és illatos lesz. Vedd ki, és mozsárban vagy késsel őröld meg. Ettől lesz zsibbasztó, ez a mapo tofu lényege."],
+          ["Hús és doubanjiang", "Ugyanebbe a serpenyőbe tedd a csirkét és a doubanjiangot. Közepes lángon, morzsolgatva süsd, amíg átsül és pirosas lesz. Add hozzá a fokhagymát és az újhagyma fehér részét, és pirítsd még 1 percig."],
+          ["Párolás", "Terítsd rá a tofut keverés nélkül, és öntsd fel az alaplével. Forrald fel, majd fedő alatt, kis lángon párold 8–10 percig, amíg a szósz kb. a felére fő. Óvatosan forgasd össze, hogy a tofu ne törjön."],
+          ["Sűrítés", "Keverd fel újra a keményítős vizet, csorgasd bele, és óvatosan forgasd, amíg a szósz besűrűsödik és fényes lesz."],
+          ["Tálalás", "Szórd meg az őrölt szecsuáni borssal és az újhagyma zöldjével, és tálald a rizzsel."]
+        ]
+      },
+      {
+        title: "Rizs",
+        sub: "köret",
+        ingredients: [
+          { name: "Fehér rizs, nyers", amt: "100 g", kcal: 360, p: 7.0, c: 78.6, f: 0.6 }
+        ],
+        steps: [
+          ["Rizs", "A rizst főzd meg kb. 2 dl enyhén sós vízben, fedő alatt kis lángon kb. 15 percig, amíg elfő a víz."]
+        ]
+      }
+    ],
+    note: "Az eredeti recept sertéshússal és több olajjal készül, ez a csirkemelles, olajspray-s változat. A doubanjiang és a szecsuáni bors a Rákóczi térnél, az ázsiai boltokban kapható. Pixian (郫县豆瓣酱) feliratút keress, az az eredeti szecsuáni. Tofu: Soya Line, 300 g = 228 kcal, 24,3 g fehérje, 4,8 g szénhidrát, 14,4 g zsír."
+  },
+  {
+    id: "makos-guba",
+    cat: "comfort",
+    title: "Mákos guba szerűség",
+    desc: "Szeletelt szénhidrátcsökkentett cipó, zsírtalanított máklisztes, édesítős-vaníliás mandulatejjel leöntve és megsütve.",
+    servings: 1,
+    time: "kb. 25 perc",
+    parts: [{
+      title: "Mákos guba",
+      sub: "1 adag",
+      ingredients: [
+        { name: "Szénhidrátcsökkentett cipó, szeletelt", amt: "110 g",  kcal: 316, p: 20.9, c: 29.7, f: 10.9 },
+        { name: "Mákliszt, zsírtalanított",              amt: "45 g",   kcal: 140, p: 15.6, c: 2.3,  f: 7.6 },
+        { name: "Mandulatej, cukrozatlan",               amt: "400 ml", kcal: 56,  p: 2.0,  c: 0.0,  f: 4.4 },
+        { name: "Édesítő, vanília aroma",                amt: "ízlés szerint", kcal: 0, p: 0, c: 0, f: 0 }
+      ],
+      steps: [
+        ["Mandulatej", "Melegítsd fel a mandulatejet, és ízesítsd édesítővel és vanília aromával. Tegyél félre belőle egy keveset a tálaláshoz."],
+        ["Mákos lé", "Keverd bele a meleg mandulatejbe a máklisztet. Kicsit besűrűsödik."],
+        ["Leöntés", "A cipó már szeletelt, nem kell felvágni. Tedd egy tűzálló tálba, és öntsd rá a mákos mandulatejet."],
+        ["Sütés", "Tedd be az előmelegített sütőbe, és 180 °C-on kb. 15 percig süsd."],
+        ["Tálalás", "A végén leöntheted a félretett édesítős mandulatejjel."]
+      ]
+    }],
+    note: "A mákliszt zsírtalanított, ezért ilyen jók a makrói: 100 g-ban kb. 311 kcal és 35 g fehérje. A cipó, a mákliszt és a mandulatej a Yazióban mentett étkezésből van, a mandulatejet 400 ml-re igazítottam (Yazio: 380 ml, 53 kcal)."
+  },
+  {
+    id: "gochujang-misos-csirke",
+    cat: "kozepes",
+    title: "Gochujang-misós csirke shiratakival",
+    desc: "Csirkemell csípős-umamis paradicsomos gochujang-miso szószban, shirataki spagettivel.",
+    servings: 1,
+    time: "kb. 25 perc",
+    parts: [{
+      title: "Gochujang-misós csirke",
+      sub: "1 adag",
+      ingredients: [
+        { name: "Csirkemell filé",                  amt: "175 g", kcal: 210, p: 39.4, c: 0.0, f: 4.6 },
+        { name: "Paradicsompüré (Baresa, Lidl)",    amt: "150 g", kcal: 53,  p: 2.1,  c: 7.4, f: 0.8 },
+        { name: "Vöröshagyma",                      amt: "78 g",  kcal: 31,  p: 0.9,  c: 7.3, f: 0.1 },
+        { name: "Fehér miso paszta (Hikari)",       amt: "20 g",  kcal: 42,  p: 2.2,  c: 5.4, f: 1.2 },
+        { name: "Gochujang",                        amt: "10 g",  kcal: 22,  p: 0.6,  c: 4.6, f: 0.2 },
+        { name: "Shirataki spagetti (Bitters fit)", amt: "180 g", kcal: 14,  p: 0.0,  c: 0.0, f: 0.0 }
+      ],
+      steps: [
+        ["Előkészítés", "A hagymát vágd apróra, a csirkemellet falatnyi darabokra."],
+        ["Shirataki", "A shiratakit öblítsd le alaposan, és 2–3 percig forrald vízben, majd szűrd le."],
+        ["Hagyma és csirke", "Tapadásmentes serpenyőben párold üvegesre a hagymát egy kanál vízzel, majd add hozzá a csirkét, és pirítsd körbe."],
+        ["Szósz", "Keverd simára a paradicsompürét a gochujanggal és a misóval, öntsd a csirkére, és pár percig főzd, amíg a csirke átsül és a szósz kicsit besűrűsödik."],
+        ["Összeforgatás", "Forgasd össze a shiratakival, és tálald."]
+      ]
+    }],
+    note: "A makrók a Yazio-exportból vannak, hozzávalónként a 100 g-os értékekből számolva."
+  },
+  {
+    id: "sutotok-cekla-csirkecomb",
+    cat: "kozepes",
+    title: "Sült sütőtök és cékla csirkecombbal, fetával, tökmaggal",
+    desc: "Alufóliában, héjában sült sütőtök és cékla, serpenyős csirkecombbal, fetával, tökmaggal és balzsamecettel.",
+    servings: 1,
+    time: "kb. 1 óra",
+    parts: [{
+      title: "Sült tál",
+      sub: "1 adag",
+      ingredients: [
+        { name: "Csirkecomb filé (Lidl)",                 amt: "250 g", kcal: 298, p: 48.8, c: 0.0,  f: 9.8 },
+        { name: "Sütőtök, nyers",                         amt: "400 g", kcal: 136, p: 3.8,  c: 34.4, f: 0.5 },
+        { name: "Cékla, nyers",                           amt: "200 g", kcal: 86,  p: 3.2,  c: 19.1, f: 0.3 },
+        { name: "Feta (Milbona, Lidl)",                   amt: "40 g",  kcal: 104, p: 6.0,  c: 0.3,  f: 8.8 },
+        { name: "Tökmag, pirított",                       amt: "10 g",  kcal: 57,  p: 3.0,  c: 1.5,  f: 4.9 },
+        { name: "Balzsamecet",                            amt: "egy löttyintés (kb. 15 ml)", kcal: 13, p: 0.1, c: 2.6, f: 0.0 },
+        { name: "Só, bors",                               amt: "ízlés szerint", kcal: 0, p: 0, c: 0, f: 0 }
+      ],
+      steps: [
+        ["Zöldségek", "Melegítsd elő a sütőt 200 °C-ra. A sütőtököt vágd félbe, és a céklával együtt hámozatlanul, egyben csomagold alufóliába. Süsd kb. 50–60 percig, amíg puha."],
+        ["Csirke", "A csirkecombot sózd, borsozd, és külön, tapadásmentes serpenyőben süsd át mindkét oldalán."],
+        ["Tálalás", "A megsült tököt és céklát vágd falatnyi darabokra, tedd rá a felszeletelt csirkecombot, morzsold rá a fetát, szórd meg a tökmaggal, és löttyints rá egy kis balzsamecetet."]
+      ]
+    }],
+    note: "A makrók a Yazio-exportból vannak, hozzávalónként a 100 g-os értékekből számolva, a balzsamecet átlagos érték (kb. 88 kcal / 100 ml). A sütőtök és a cékla nyers, hámozatlan súllyal szerepel."
+  },
+  {
+    id: "halleves-szeruseg",
+    cat: "extra-lean",
+    title: "Mediterrán tőkehal",
+    desc: "Sütőben sült paprika, paradicsom és hagyma, rajta sült hal, fehérbabbal és kapribogyóval.",
+    servings: 1,
+    time: "kb. 45 perc",
+    parts: [{
+      title: "Mediterrán tőkehal",
+      sub: "1 adag",
+      ingredients: [
+        { name: "Alaszkai tőkehalfilé",           amt: "400 g", kcal: 316, p: 72.0, c: 0.0,  f: 3.2 },
+        { name: "Fehérbab konzerv, lecsepegtetve", amt: "230 g", kcal: 189, p: 12.6, c: 25.3, f: 1.4 },
+        { name: "Paradicsom",             amt: "300 g", kcal: 48,  p: 3.5,  c: 9.5,  f: 0.6 },
+        { name: "Kaliforniai paprika",            amt: "90 g",  kcal: 32,  p: 0.9,  c: 5.4,  f: 0.3 },
+        { name: "Vöröshagyma",                    amt: "60 g",  kcal: 24,  p: 0.7,  c: 5.6,  f: 0.1 },
+        { name: "Kapribogyó (S-Budget)",          amt: "30 g",  kcal: 8,   p: 0.6,  c: 0.7,  f: 0.2 },
+        { name: "Oregánó, só, bors",              amt: "ízlés szerint", kcal: 0, p: 0, c: 0, f: 0 }
+      ],
+      steps: [
+        ["Zöldségek", "Melegítsd elő a sütőt 200 °C-ra. A paprikát, a paradicsomot és a hagymát vágd fel, tedd egy jénaiba, és fűszerezd oregánóval, sóval, borssal."],
+        ["Sütés", "Süsd kb. 20 percig, amíg a zöldségek félig megsülnek és kicsit megpirulnak."],
+        ["Hal", "Tedd a halat a zöldségek tetejére, fűszerezd, és süsd további kb. 15 percig, amíg átsül."],
+        ["Bab és kapribogyó", "Vedd ki a sütőből, keverd hozzá a lecsepegtetett babot, és szórd rá a kapribogyót."]
+      ]
+    }],
+    note: "A makrók a Yazio-exportból vannak, ellenőrizve. A kapribogyót utólag adtam hozzá, a mennyiség (30 g) becslés. A sütési hőfok és idők javaslatok."
+  },
+  {
+    id: "csirkes-zoldseges-curry",
+    cat: "kozepes",
+    title: "Csirkés-zöldséges curry",
+    desc: "Cukkinis-paradicsomos kókusztejes curry csicseriborsóval, mellé külön sütött csirkemellcsíkok.",
+    servings: 2,
+    serveNote: "1 adag = a curry fele",
+    time: "kb. 40 perc",
+    parts: [{
+      title: "Curry",
+      sub: "2 adag",
+      ingredients: [
+        { name: "Csirkemell filé",                     amt: "425 g", kcal: 510, p: 95.6, c: 0.0,  f: 11.1 },
+        { name: "Light kókusztej",                     amt: "200 g", kcal: 270, p: 1.2,  c: 2.4,  f: 28.0 },
+        { name: "Cukkini",                             amt: "662 g", kcal: 113, p: 8.0,  c: 20.6, f: 2.1 },
+        { name: "Vöröshagyma",                         amt: "250 g", kcal: 100, p: 2.8,  c: 23.4, f: 0.2 },
+        { name: "Paradicsom",                  amt: "158 g", kcal: 25,  p: 1.8,  c: 5.0,  f: 0.3 },
+        { name: "Csicseriborsó konzerv, lecsepegtetve", amt: "100 g", kcal: 120, p: 7.0,  c: 15.0, f: 2.5 },
+        { name: "Curry por",                           amt: "2 teáskanál (4 g)", kcal: 13, p: 0.6, c: 1.1, f: 0.6 },
+        { name: "Só",                                  amt: "ízlés szerint", kcal: 0, p: 0, c: 0, f: 0 }
+      ],
+      steps: [
+        ["Előkészítés", "A hagymát vágd apróra, a cukkinit kockákra, a paradicsomot darabokra, a csirkemellet csíkokra. A csicseriborsót csepegtesd le."],
+        ["Hagyma és cukkini", "Párold üvegesre a hagymát egy kanál vízzel, majd add hozzá a cukkinit, és párold, amíg megtunnyad."],
+        ["Curry", "Szórd rá a curryport, és keverd át."],
+        ["Paradicsom", "Add hozzá a paradicsomot, és főzd össze pár percig."],
+        ["Kókusztej és csicseriborsó", "Öntsd fel a kókusztejjel, add hozzá a csicseriborsót, és forrald össze."],
+        ["Csirke", "A csirkecsíkokat külön, tapadásmentes serpenyőben süsd át."],
+        ["Tálalás", "A csirkét a curry mellé tálald."]
+      ]
+    }],
+    note: "A makrók a Yazio-exportból vannak. A répát kivettük, helyette csicseriborsó került bele, ennek és a curryporénak az értéke átlagos becslés. A light kókusztej a Yazio szerint 135 kcal és 14 g zsír / 100 g."
+  },
+  {
+    id: "csirkemell-gorog-salata",
+    cat: "extra-lean",
+    title: "Sült csirkemell görögszerű salátával",
+    desc: "Serpenyőben sült csirkemellcsíkok, apróra vágott uborkás-paradicsomos-kapribogyós salátával, olaj nélkül.",
+    servings: 1,
+    time: "kb. 25 perc",
+    parts: [{
+      title: "Csirke és saláta",
+      sub: "1 adag",
+      ingredients: [
+        { name: "Csirkemell filé, tisztított",          amt: "250 g", kcal: 262.5, p: 60.0, c: 0.0,  f: 2.5 },
+        { name: "Kígyóuborka",                          amt: "300 g", kcal: 45,  p: 2.0,  c: 10.8, f: 0.3 },
+        { name: "Paradicsom",                           amt: "300 g", kcal: 54,  p: 2.7,  c: 11.7, f: 0.6 },
+        { name: "Kapribogyó (S-Budget)",                amt: "25 g",  kcal: 6.5, p: 0.5,  c: 0.6,  f: 0.1 },
+        { name: "Lilahagyma",                           amt: "fél fej (kb. 40 g)", kcal: 17, p: 0.4, c: 4.0, f: 0.0 },
+        { name: "Só, bors, oregánó (a salátába)",       amt: "ízlés szerint", kcal: 0, p: 0, c: 0, f: 0 },
+        { name: "Fűszer a csirkére (pl. só, bors, paprika)", amt: "ízlés szerint", kcal: 0, p: 0, c: 0, f: 0 }
+      ],
+      steps: [
+        ["Zöldségek", "Az uborkát, a paradicsomot és a lilahagymát vágd nagyon apróra."],
+        ["Kapribogyó", "A kapribogyót is aprítsd fel kicsit, és keverd a zöldségekhez."],
+        ["Saláta fűszerezése", "Sózd, borsozd, és szórd meg oregánóval. Olaj nem kell bele."],
+        ["Csirke", "A csirkemellet vágd csíkokra, és fűszerezd úgy, ahogy szereted, például sóval, borssal, paprikával."],
+        ["Sütés", "Tapadásmentes serpenyőben, olaj nélkül süsd át a csíkokat minden oldalukon."],
+        ["Tálalás", "Tálald a csirkét a saláta mellé vagy a tetejére."]
+      ]
+    }],
+    note: "A csirkemell, a kapribogyó és a lilahagyma makrói a Yazio-exportból vannak. A paradicsomot átlagos értékkel számoltam (18 kcal / 100 g), mert a Yazióban szereplő adat hibásnak tűnik. A fél lilahagyma kb. 40 g-ja becslés."
+  }
+];
+
+const fmt = n => (Math.round(n * 10) / 10).toLocaleString("hu-HU", { maximumFractionDigits: 1 });
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[ch]));
+const zero = { kcal: 0, p: 0, c: 0, f: 0 };
+const add = (a, b) => ({ kcal: a.kcal + b.kcal, p: a.p + b.p, c: a.c + b.c, f: a.f + b.f });
+const div = (t, s) => ({ kcal: t.kcal / s, p: t.p / s, c: t.c / s, f: t.f / s });
+const partTotal = part => part.ingredients.reduce(add, zero);
+const head = `<thead><tr><th></th><th>kcal</th><th>Fehérje g</th><th>Szénhidrát g</th><th>Zsír g</th></tr></thead>`;
+const row = (label, t, cls = "") => `<tr class="${cls}"><td>${label}</td><td class="num">${Math.round(t.kcal)}</td><td class="num">${fmt(t.p)}</td><td class="num">${fmt(t.c)}</td><td class="num">${fmt(t.f)}</td></tr>`;
+
+// Szerkeszthető makrók: minden hozzávaló kap azonosítót, eredeti értéket és mennyiséget (g / ml).
+// Grammos hozzávalónál a mennyiség és a 100 g-ra jutó érték szerkeszthető, ebből számolódik a tényleges makró.
+const EDIT_KEY = "simon-receptjei-makro-szerkesztes-v2";
+const MK = ["kcal", "p", "c", "f"];
+const MK_LABEL = { kcal: "kcal", p: "Fehérje g", c: "Szénhidrát g", f: "Zsír g" };
+const ING = {};
+const parseNum = x => parseFloat(String(x).trim().replace(",", "."));
+function gramsOf(amt) {
+  const m = /(\d+(?:[.,]\d+)?)\s*×\s*(\d+(?:[.,]\d+)?)\s*(g|ml)\b/.exec(amt);
+  if (m) return { q: parseNum(m[1]) * parseNum(m[2]), u: m[3] };
+  const s = /(\d+(?:[.,]\d+)?)\s*(g|ml)\b/.exec(amt);
+  return s ? { q: parseNum(s[1]), u: s[2] } : null;
+}
+const near = (a, b) => Math.abs(a - b) < 1e-9;
+function recalc(ing) { for (const k of MK) ing[k] = ing._per[k] * ing._q / 100; }
+RECIPES.forEach(r => {
+  const tag = (parts, pre) => parts.forEach((part, pi) => part.ingredients.forEach((ing, ii) => {
+    ing._id = `${r.id}|${pre}${pi}|${ii}`;
+    ing._r = r.id;
+    ing._orig = { kcal: ing.kcal, p: ing.p, c: ing.c, f: ing.f };
+    ing._g = gramsOf(ing.amt);
+    if (ing._g && ing._g.q > 0) {
+      ing._q = ing._g.q;
+      ing._per0 = Object.fromEntries(MK.map(k => [k, ing[k] * 100 / ing._q]));
+      ing._per = { ...ing._per0 };
+    } else ing._g = null;
+    ING[ing._id] = ing;
+  }));
+  tag(r.parts, "p");
+  (r.variants || []).forEach(v => tag(v.parts, `v-${v.key}-`));
+});
+let edits = {};
+try { edits = JSON.parse(localStorage.getItem(EDIT_KEY) || "{}") || {}; } catch (e) { edits = {}; }
+for (const [id, e] of Object.entries(edits)) {
+  const ing = ING[id];
+  if (!ing) { delete edits[id]; continue; }
+  if (ing._g && e.per) { ing._q = e.q; ing._per = { ...e.per }; recalc(ing); }
+  else if (!ing._g && e.abs) Object.assign(ing, e.abs);
+  else delete edits[id];
+}
+const saveEdits = () => { try { localStorage.setItem(EDIT_KEY, JSON.stringify(edits)); } catch (e) {} };
+const isEdited = ing => !!edits[ing._id];
+const qtyChanged = ing => !!(ing._g && !near(ing._q, ing._g.q));
+const macroChanged = ing => ing._g ? MK.some(k => !near(ing._per[k], ing._per0[k])) : MK.some(k => !near(ing[k], ing._orig[k]));
+const recipeEdited = r => Object.keys(edits).some(id => ING[id] && ING[id]._r === r.id);
+function resetIds(ids) {
+  for (const id of ids) {
+    const ing = ING[id];
+    if (!ing) continue;
+    Object.assign(ing, ing._orig);
+    if (ing._g) { ing._q = ing._g.q; ing._per = { ...ing._per0 }; }
+    delete edits[id];
+  }
+  saveEdits();
+}
+let editing = null; // a szerkesztés alatt álló hozzávaló azonosítója
+const canHover = !!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches);
+const numStr = n => String(Math.round(n * 10) / 10).replace(".", ",");
+const valStr = (k, v) => k === "kcal" ? String(Math.round(v)) : fmt(v);
+
+// A hozzávaló neve, mennyisége és a módosítás jelölése
+function ingLabel(i) {
+  const amt = qtyChanged(i)
+    ? `<span class="amt amt-new">${numStr(i._q)} ${i._g.u}</span><span class="amt-old">eredetileg: ${esc(i.amt)}</span>`
+    : `<span class="amt">${esc(i.amt)}</span>`;
+  const tags = [qtyChanged(i) && "mennyiség", macroChanged(i) && (i._g ? "100 g-os érték" : "makró")].filter(Boolean);
+  return `${esc(i.name)}${amt}${tags.length ? `<span class="ed-tag">✎ ${tags.join(" + ")} átírva</span>` : ""}`;
+}
+
+function editRow(i) {
+  const actions = `<span class="edit-actions"><button type="button" class="mini-btn save-ing">Kész</button><button type="button" class="mini-btn cancel-ing">Mégse</button></span>`;
+  if (!i._g) {
+    return `
+    <tr class="ing editing" data-ing="${i._id}"><td>${esc(i.name)}<span class="amt">${esc(i.amt)}</span>
+      <span class="edit-note">Ennél nincs gramm, a teljes mennyiség makróit írd át.</span>${actions}</td>
+    ${MK.map(k => `<td><input class="mac-in" type="text" inputmode="decimal" autocomplete="off" data-k="${k}" data-v0="${numStr(i[k])}" value="${numStr(i[k])}" aria-label="${MK_LABEL[k]}"></td>`).join("")}</tr>`;
+  }
+  const u = i._g.u;
+  return `
+    <tr class="ing editing" data-ing="${i._id}"><td>${esc(i.name)}
+      <label class="qty-l">Mennyiség <input class="qty-in" type="text" inputmode="decimal" autocomplete="off" data-v0="${numStr(i._q)}" value="${numStr(i._q)}" aria-label="Mennyiség (${u})"> ${u}</label>
+      <span class="edit-note">Eredetileg: ${esc(i.amt)}. A makrókat 100 ${u}-ra add meg, a táblázat a mennyiséggel számol.</span>${actions}</td>
+    ${MK.map(k => `<td><input class="mac-in" type="text" inputmode="decimal" autocomplete="off" data-k="${k}" data-v0="${numStr(i._per[k])}" value="${numStr(i._per[k])}" aria-label="${MK_LABEL[k]} / 100 ${u}"><span class="per-l">/ 100 ${u}</span><span class="live" data-k="${k}">= ${valStr(k, i[k])}</span></td>`).join("")}</tr>`;
+}
+
+// A beírt mezők értéke; ha a mező nem változott, a pontos (nem kerekített) érték marad
+function readInput(inp, fallback) {
+  if (inp.value.trim() === inp.dataset.v0) return fallback;
+  const n = parseNum(inp.value);
+  return isFinite(n) && n >= 0 ? n : fallback;
+}
+function updateLive(tr) {
+  const ing = ING[tr.dataset.ing];
+  if (!ing || !ing._g) return;
+  const q = readInput(tr.querySelector(".qty-in"), ing._q);
+  for (const inp of tr.querySelectorAll(".mac-in")) {
+    const k = inp.dataset.k;
+    const live = tr.querySelector(`.live[data-k="${k}"]`);
+    if (live) live.textContent = `= ${valStr(k, readInput(inp, ing._per[k]) * q / 100)}`;
+  }
+}
+
+function commitEdit(tr) {
+  const ing = ING[tr.dataset.ing];
+  if (!ing) return;
+  if (ing._g) {
+    ing._q = readInput(tr.querySelector(".qty-in"), ing._q);
+    for (const inp of tr.querySelectorAll(".mac-in")) ing._per[inp.dataset.k] = readInput(inp, ing._per[inp.dataset.k]);
+    recalc(ing);
+    if (!qtyChanged(ing) && !macroChanged(ing)) { delete edits[ing._id]; Object.assign(ing, ing._orig); }
+    else edits[ing._id] = { q: ing._q, per: { ...ing._per } };
+  } else {
+    for (const inp of tr.querySelectorAll(".mac-in")) ing[inp.dataset.k] = readInput(inp, ing[inp.dataset.k]);
+    if (!macroChanged(ing)) delete edits[ing._id];
+    else edits[ing._id] = { abs: { kcal: ing.kcal, p: ing.p, c: ing.c, f: ing.f } };
+  }
+  saveEdits();
+  editing = null;
+  render();
+}
+
+function tipHTML(ing) {
+  if (!ing._g) return "";
+  const u = ing._g.u;
+  return `<div class="tip-h">${esc(ing.name)}</div>
+    <div class="tip-sub">${u === "g" ? "100 g-ban" : "100 ml-ben"}${macroChanged(ing) ? " · átírva" : ""}</div>
+    <div class="tip-grid">
+      <span>Energia</span><b>${Math.round(ing._per.kcal)} kcal</b>
+      <span>Fehérje</span><b>${fmt(ing._per.p)} g</b>
+      <span>Szénhidrát</span><b>${fmt(ing._per.c)} g</b>
+      <span>Zsír</span><b>${fmt(ing._per.f)} g</b>
+    </div>`;
+}
+const tip = document.createElement("div");
+tip.className = "tip";
+tip.hidden = true;
+tip.setAttribute("role", "tooltip");
+document.body.appendChild(tip);
+
+function macroTiles(t, label) {
+  return `<div class="macros" aria-label="${label}">
+    <div class="macro"><span class="v">${Math.round(t.kcal)}</span><span class="l">kcal / adag</span></div>
+    <div class="macro"><span class="v">${fmt(t.p)}<small> g</small></span><span class="l">Fehérje</span></div>
+    <div class="macro"><span class="v">${fmt(t.c)}<small> g</small></span><span class="l">Szénhidrát</span></div>
+    <div class="macro"><span class="v">${fmt(t.f)}<small> g</small></span><span class="l">Zsír</span></div>
+    <div class="macro ratio"><span class="v">${fmt(t.p / t.kcal * 100)}<small> g</small></span><span class="l">Fehérje / 100 kcal</span></div>
+  </div>`;
+}
+
+function partHTML(part) {
+  const t = partTotal(part);
+  const rows = part.ingredients.map(i => i._id === editing ? editRow(i) : `
+    <tr class="ing${isEdited(i) ? " edited" : ""}" data-ing="${i._id}" tabindex="0"><td>${ingLabel(i)}</td>
+    <td class="num">${Math.round(i.kcal)}</td><td class="num">${fmt(i.p)}</td><td class="num">${fmt(i.c)}</td><td class="num">${fmt(i.f)}</td></tr>`).join("");
+  const edited = part.ingredients.filter(isEdited);
+  const bar = edited.length ? `
+      <div class="edit-bar" role="status"><span>${edited.length} hozzávalót átírtál ebben a részben, az összesítő már ezekkel számol.</span>
+        <button type="button" class="reset-btn" data-ids="${edited.map(i => i._id).join(" ")}">Visszaállítás</button></div>` : "";
+  return `
+  <section class="part">
+    <h3 class="part-title">${esc(part.title)} <span class="sub">${esc(part.sub || "")}</span></h3>
+    <div>
+      <h4>Hozzávalók és makrók</h4>
+      <p class="hint">${canHover ? "Vidd az egeret egy sorra a 100 g-ra jutó makrókért, kattints rá a mennyiség és a 100 g-os értékek átírásához." : "Koppints egy sorra a mennyiség és a 100 g-os értékek átírásához."}</p>
+      <div class="table-scroll"><table>${head}
+        <tbody>${rows}</tbody>
+        <tfoot>${row("Összesen", t)}</tfoot>
+      </table></div>${bar}
+    </div>
+    <div>
+      <h4>Elkészítés</h4>
+      <ol class="steps">${part.steps.map(([h, b]) => `<li><div><b>${esc(h)}</b><span>${esc(b)}</span></div></li>`).join("")}</ol>
+    </div>
+  </section>`;
+}
+
+// Változatok (pl. két öntet): a recept közös részei + a kiválasztott változat részei
+const activeVariant = {};
+const partsOf = (r, vKey) => {
+  if (!r.variants) return r.parts;
+  const v = r.variants.find(x => x.key === vKey) || r.variants[0];
+  return r.parts.concat(v.parts);
+};
+
+function summaryHTML(r, parts) {
+  const s = r.servings;
+  const whole = parts.map(partTotal);
+  const all = whole.reduce(add, zero);
+  const one = div(all, s);
+  const tbl = (title, list, total) => `
+    <div><h4>${title}</h4>
+    <div class="table-scroll"><table>${head}<tbody>
+      ${parts.map((p, i) => row(esc(p.title), list[i], "group")).join("")}
+    </tbody><tfoot>${row("Együtt", total)}</tfoot></table></div></div>`;
+  return `
+  <section class="summary">
+    <h3>Összesítő</h3>
+    ${macroTiles(one, "Teljes étel makrói egy adagra")}
+    ${tbl("1 adag", whole.map(t => div(t, s)), one)}
+    ${s > 1 ? tbl(`Egész recept (${s} adag)`, whole, all) : ""}
+  </section>`;
+}
+
+// Kategória a fehérje / 100 kcal hányados alapján: >= 13 extra lean, 8–13 közepes, < 8 comfort
+const RATIO = t => t.p / t.kcal * 100;
+const catOf = t => { const q = RATIO(t); return q >= 13 ? "extra-lean" : q >= 8 ? "kozepes" : "comfort"; };
+const recipeTotal = (r, vKey) => partsOf(r, vKey).map(partTotal).reduce(add, zero);
+// Egy recept összes változata (vagy egyetlen alap), adagonkénti makrókkal és kategóriával
+const optionsOf = r => (r.variants ? r.variants : [{ key: null, label: null }]).map(v => {
+  const t = div(recipeTotal(r, v.key), r.servings);
+  return { key: v.key, label: v.label, t, cat: catOf(t) };
+});
+const routeOf = (r, key) => key ? `${r.id}-v-${key}` : r.id;
+function parseRoute(h) {
+  for (const r of RECIPES) {
+    if (h === r.id) return { r, key: null };
+    if (r.variants) for (const v of r.variants) if (h === `${r.id}-v-${v.key}`) return { r, key: v.key };
+  }
+  return null;
+}
+let override = null; // a receptoldalon gombbal választott változat
+
+function recipeHTML(r, routeKey) {
+  const vKey = r.variants ? (override || routeKey || r.variants[0].key) : null;
+  const parts = partsOf(r, vKey);
+  const cat = catOf(div(recipeTotal(r, vKey), r.servings));
+  const switcher = r.variants ? `
+    <div class="variant-switch" role="group" aria-label="Változat">
+      ${optionsOf(r).map(o => `<button type="button" class="variant-btn" data-cat="${o.cat}" data-variant="${o.key}" aria-pressed="${o.key === vKey}">${esc(o.label)}</button>`).join("")}
+    </div>` : "";
+  return `
+  <article class="recipe" data-cat="${cat}">
+    <div class="r-top">
+      <div class="badges"><span class="badge">${CATS[cat].name}</span>${recipeEdited(r) ? `<span class="badge ed-badge">✎ Átírt makrók</span>` : ""}</div>
+      <h3>${esc(r.title)}</h3>
+      <p class="desc">${esc(r.desc)}</p>
+      <div class="meta">${r.servings} adag${r.serveNote ? ` · ${esc(r.serveNote)}` : ""} · ${esc(r.time)}</div>
+    </div>
+    ${switcher}
+    ${parts.map(partHTML).join("")}
+    ${r.note ? `<div class="note">${esc(r.note)}</div>` : ""}
+    ${summaryHTML(r, parts)}
+  </article>`;
+}
+
+const inCat = cat => RECIPES.filter(r => optionsOf(r).some(o => o.cat === cat));
+
+function homeHTML() {
+  return `<div class="cats">${Object.entries(CATS).map(([key, c]) => `
+    <a class="cat-card" data-cat="${key}" href="#${key}">
+      <span class="dot"></span>
+      <span class="cat-name">${c.name}</span>
+      <span class="cat-blurb">${c.blurb}</span>
+      <span class="cat-rule">${c.rule}</span>
+      <span class="cat-count">${inCat(key).length} recept</span>
+    </a>`).join("")}</div>`;
+}
+
+function categoryHTML(cat) {
+  const best = r => Math.max(...optionsOf(r).filter(o => o.cat === cat).map(o => RATIO(o.t)));
+  const list = inCat(cat).sort((x, y) => best(y) - best(x));
+  return `
+    <div class="view-grid">
+      <a class="back" href="#">← Kategóriák</a>
+      <div class="cat-head"><h2>${CATS[cat].name}</h2><p>${CATS[cat].blurb} ${CATS[cat].rule}.</p></div>
+      <div class="r-list">${list.length ? list.map(r => {
+        const opts = optionsOf(r);
+        const hasV = !!r.variants;
+        const byRatio = (x, y) => RATIO(y.t) - RATIO(x.t);
+        const ordered = opts.filter(o => o.cat === cat).sort(byRatio).concat(opts.filter(o => o.cat !== cat).sort(byRatio));
+        const rows = ordered.map(o => `${hasV ? `<tr class="vrow${o.cat !== cat ? " other" : ""}" data-cat="${o.cat}"><td colspan="5">${esc(o.label)}${o.cat !== cat ? ` <small>· ${CATS[o.cat].name}</small>` : ""}</td></tr>` : ""}<tr class="${o.cat !== cat ? "other" : ""}" data-cat="${o.cat}"><td class="num">${Math.round(o.t.kcal)}</td><td class="num">${fmt(o.t.p)}</td><td class="num">${fmt(o.t.c)}</td><td class="num">${fmt(o.t.f)}</td><td class="num ratio-cell">${fmt(RATIO(o.t))}</td></tr>`).join("");
+        return `<a class="r-card" data-cat="${cat}" href="#${routeOf(r, ordered[0].key)}">
+          <span class="r-name">${esc(r.title)}${recipeEdited(r) ? ` <span class="ed-tag">✎ átírva</span>` : ""}</span>
+          <span class="r-desc">${esc(r.desc)}</span>
+          <table class="mini">
+            <thead><tr><th>kcal</th><th>Fehérje g</th><th>Szénhidrát g</th><th>Zsír g</th><th>Fehérje / 100 kcal</th></tr></thead>
+            <tbody>${rows}</tbody></table><span class="mini-note">1 adagra</span>
+        </a>`;
+      }).join("") :
+        `<div class="empty"><strong>Még nincs recept ebben a kategóriában</strong>Mondd el a következő receptet, és ide kerül makrókkal együtt.</div>`}</div>
+    </div>`;
+}
+
+function render() {
+  tip.hidden = true;
+  tip.dataset.for = "";
+  const key = location.hash.slice(1);
+  const view = document.getElementById("view");
+  const route = parseRoute(key);
+  if (route) {
+    const { r, key: rk } = route;
+    const from = catOf(div(recipeTotal(r, rk || (r.variants && r.variants[0].key)), r.servings));
+    view.innerHTML = `<div class="view-grid"><a class="back" href="#${from}">← ${CATS[from].name}</a>${recipeHTML(r, rk)}</div>`;
+  } else if (CATS[key]) {
+    view.innerHTML = categoryHTML(key);
+  } else {
+    view.innerHTML = homeHTML();
+  }
+}
+
+const viewEl = document.getElementById("view");
+function startEdit(id) {
+  editing = id;
+  render();
+  const inp = viewEl.querySelector("tr.editing .mac-in");
+  if (inp) { inp.focus(); inp.select(); }
+}
+viewEl.addEventListener("click", e => {
+  const btn = e.target.closest(".variant-btn");
+  if (btn) { override = btn.dataset.variant; editing = null; render(); return; }
+  const reset = e.target.closest(".reset-btn");
+  if (reset) { resetIds(reset.dataset.ids.split(" ")); editing = null; render(); return; }
+  const tr = e.target.closest("tr.ing");
+  if (!tr) return;
+  if (tr.classList.contains("editing")) {
+    if (e.target.closest(".save-ing")) commitEdit(tr);
+    else if (e.target.closest(".cancel-ing")) { editing = null; render(); }
+    return;
+  }
+  startEdit(tr.dataset.ing);
+});
+viewEl.addEventListener("keydown", e => {
+  const tr = e.target.closest("tr.ing");
+  if (!tr) return;
+  if (tr.classList.contains("editing")) {
+    if (e.key === "Enter") { e.preventDefault(); commitEdit(tr); }
+    else if (e.key === "Escape") { editing = null; render(); }
+  } else if (e.target === tr && (e.key === "Enter" || e.key === " ")) {
+    e.preventDefault();
+    startEdit(tr.dataset.ing);
+  }
+});
+viewEl.addEventListener("input", e => {
+  const tr = e.target.closest("tr.editing");
+  if (tr) updateLive(tr);
+});
+viewEl.addEventListener("mousemove", e => {
+  if (!canHover) return;
+  const tr = e.target.closest("tr.ing:not(.editing)");
+  const ing = tr && ING[tr.dataset.ing];
+  const html = ing ? tipHTML(ing) : "";
+  if (!html) { tip.hidden = true; return; }
+  if (tip.dataset.for !== ing._id) { tip.innerHTML = html; tip.dataset.for = ing._id; }
+  tip.hidden = false;
+  const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = e.clientX + pad, y = e.clientY + pad;
+  if (x + w > innerWidth - 8) x = e.clientX - w - pad;
+  if (y + h > innerHeight - 8) y = e.clientY - h - pad;
+  tip.style.left = Math.max(8, x) + "px";
+  tip.style.top = Math.max(8, y) + "px";
+});
+viewEl.addEventListener("mouseleave", () => { tip.hidden = true; });
+window.addEventListener("scroll", () => { tip.hidden = true; }, { passive: true });
+window.addEventListener("hashchange", () => { override = null; editing = null; render(); window.scrollTo(0, 0); });
+render();
+</script>
+<script>
+// Közös segédfüggvények a dizájnváltozatokhoz (az eredeti logikára épülnek)
+const SVG = {
+  clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2.5 4.5 13.5h6.5l-1 8 8.5-11h-6.5z"/></svg>',
+  people: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.8.7 3 2.4 3.5 5.2"/></svg>',
+  home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg>',
+  search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>'
+};
+const hintText = () => canHover
+  ? "Vidd az egeret egy sorra a 100 g-os makrókért, kattints rá a mennyiség és a 100 g-os értékek átírásához."
+  : "Koppints egy sorra a mennyiség és a 100 g-os értékek átírásához.";
+
+function ingRows(part) {
+  return part.ingredients.map(i => i._id === editing ? editRow(i) : `
+    <tr class="ing${isEdited(i) ? " edited" : ""}" data-ing="${i._id}" tabindex="0"><td>${ingLabel(i)}</td>
+    <td class="num">${Math.round(i.kcal)}</td><td class="num">${fmt(i.p)}</td><td class="num">${fmt(i.c)}</td><td class="num">${fmt(i.f)}</td></tr>`).join("");
+}
+function editBarHTML(part) {
+  const edited = part.ingredients.filter(isEdited);
+  return edited.length ? `
+    <div class="edit-bar" role="status"><span>${edited.length} hozzávalót átírtál, az összesítő már ezekkel számol.</span>
+      <button type="button" class="reset-btn" data-ids="${edited.map(i => i._id).join(" ")}">Visszaállítás</button></div>` : "";
+}
+function ingTableHTML(part) {
+  return `<div class="table-scroll"><table>${head}<tbody>${ingRows(part)}</tbody><tfoot>${row("Összesen", partTotal(part))}</tfoot></table></div>${editBarHTML(part)}`;
+}
+function summaryTables(r, parts) {
+  const s = r.servings, whole = parts.map(partTotal), all = whole.reduce(add, zero), one = div(all, s);
+  const tbl = (title, list, total) => `
+    <div><h4>${title}</h4><div class="table-scroll"><table>${head}<tbody>
+      ${parts.map((p, i) => row(esc(p.title), list[i], "group")).join("")}
+    </tbody><tfoot>${row("Együtt", total)}</tfoot></table></div></div>`;
+  return `<section class="summary"><h3>Összesítő</h3>${tbl("1 adag", whole.map(t => div(t, s)), one)}${s > 1 ? tbl(`Egész recept (${s} adag)`, whole, all) : ""}</section>`;
+}
+function variantSwitch(r, vKey) {
+  return r.variants ? `
+    <div class="variant-switch" role="group" aria-label="Változat">
+      ${optionsOf(r).map(o => `<button type="button" class="variant-btn" data-cat="${o.cat}" data-variant="${o.key}" aria-pressed="${o.key === vKey}">${esc(o.label)}</button>`).join("")}
+    </div>` : "";
+}
+const bestOption = (r, cat) => optionsOf(r).filter(o => !cat || o.cat === cat).sort((a, b) => RATIO(b.t) - RATIO(a.t))[0];
+const catsHTML = () => `<div class="cats">${Object.entries(CATS).map(([key, c]) => `
+    <a class="cat-card" data-cat="${key}" href="#${key}">
+      <span class="dot"></span>
+      <span class="cat-name">${c.name}</span>
+      <span class="cat-blurb">${c.blurb}</span>
+      <span class="cat-rule">${c.rule}</span>
+      <span class="cat-count">${inCat(key).length} recept</span>
+    </a>`).join("")}</div>`;
+function allListHTML() {
+  const list = RECIPES.map(r => ({ r, o: bestOption(r) })).sort((a, b) => RATIO(b.o.t) - RATIO(a.o.t));
+  return `<div class="all-list">${list.map(({ r, o }) => `
+    <a class="all-row" data-cat="${o.cat}" href="#${routeOf(r, o.key)}">
+      <span class="dot"></span>
+      <span class="ar-name">${esc(r.title)}${recipeEdited(r) ? ` <span class="ed-tag">✎ átírva</span>` : ""}</span>
+      <span class="ar-kcal">${Math.round(o.t.kcal)} kcal</span>
+      <span class="ar-ratio">${fmt(RATIO(o.t))} g / 100 kcal</span>
+    </a>`).join("")}</div>`;
+}
+
+// „Szalag” változat: homokszín alap, mélyerdő-zöld és acélkék, színes szalagok a kategóriákhoz
+SVG.arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>';
+SVG.back = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 17 7 7M15 7H7v8"/></svg>';
+
+function macroTiles(t, label) {
+  return `<div class="bands" aria-label="${label}">
+    <div class="band b-kcal"><span class="bn">${Math.round(t.kcal)}</span><span class="bl">kcal / adag</span></div>
+    <div class="band b-p"><span class="bn">${fmt(t.p)}<small>g</small></span><span class="bl">Fehérje</span></div>
+    <div class="band b-c"><span class="bn">${fmt(t.c)}<small>g</small></span><span class="bl">Szénhidrát</span></div>
+    <div class="band b-f"><span class="bn">${fmt(t.f)}<small>g</small></span><span class="bl">Zsír</span></div>
+    <div class="band b-r"><span class="bn">${fmt(RATIO(t))}<small>g</small></span><span class="bl">Fehérje / 100 kcal</span></div>
+  </div>`;
+}
+
+function homeHTML() {
+  return `
+  <div class="ribbons">${Object.entries(CATS).map(([k, c]) => `
+    <a class="ribbon notch" data-cat="${k}" href="#${k}">
+      <span class="notch-cut" aria-hidden="true"></span><span class="notch-tile">${SVG.arrow}</span>
+      <span class="rb-count">${String(inCat(k).length).padStart(2, "0")}</span>
+      <span class="rb-unit">recept</span>
+      <span class="rb-name">${c.name}</span>
+      <span class="rb-rule">${c.rule}</span>
+    </a>`).join("")}</div>`;
+}
+
+function recipeHTML(r, routeKey) {
+  const vKey = r.variants ? (override || routeKey || r.variants[0].key) : null;
+  const parts = partsOf(r, vKey);
+  const one = div(recipeTotal(r, vKey), r.servings);
+  const cat = catOf(one);
+  const from = catOf(div(recipeTotal(r, routeKey || (r.variants && r.variants[0].key)), r.servings));
+  return `
+  <article class="recipe-d" data-cat="${cat}">
+    <header class="rd-hero notch tl">
+      <span class="notch-cut" aria-hidden="true"></span>
+      <a class="notch-tile" href="#${from}" aria-label="Vissza: ${CATS[from].name}" title="Vissza: ${CATS[from].name}">${SVG.back}</a>
+      <div class="rd-tags">
+        <span class="pill cat-pill"><span class="dot"></span>${CATS[cat].name}</span>
+        ${recipeEdited(r) ? `<span class="pill ed-pill">✎ Átírt makrók</span>` : ""}
+      </div>
+      <h1>${esc(r.title)}</h1>
+      <p>${esc(r.desc)}</p>
+      <div class="rd-meta">
+        <span class="pill">${SVG.clock}${esc(r.time)}</span>
+        <span class="pill">${SVG.people}${r.servings} adag${r.serveNote ? ` · ${esc(r.serveNote)}` : ""}</span>
+      </div>
+      ${variantSwitch(r, vKey)}
+    </header>
+    ${macroTiles(one, "Egy adag makrói")}
+    ${parts.map(partHTML).join("")}
+    ${summaryTables(r, parts)}
+  </article>`;
+}
+render();
+</script>
+
+</body>
+</html>
