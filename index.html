@@ -356,6 +356,9 @@ ol.steps li::before { background: var(--fill); color: var(--on); font-family: va
   .part { padding: 18px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .ribbon, .rank-row { transition: none; } .ribbon:hover { transform: none; } }
+.d-head .lede { display: grid; gap: 10px; max-width: 64ch; font-size: 16px; line-height: 1.6; color: var(--ink); }
+.d-head .lede p { margin: 0; }
+.d-head .lede .lede-lead { font-size: 19px; font-weight: 600; color: var(--ink); }
 
 </style>
 </head>
@@ -363,18 +366,17 @@ ol.steps li::before { background: var(--fill); color: var(--on); font-family: va
 
 <div class="wrap">
   <header class="d-head">
-    <span class="pill-o">Saját receptgyűjtemény · makrókkal</span>
     <h1>Simon Receptjei</h1>
-    <p class="lede">Receptek három kategóriában, makrókkal adagonként és hozzávalónként.</p>
+    <div class="lede"><p class="lede-lead">Magas fehérjetartalmú receptek.</p><p>Mindegyik recept magas fehérjetartalmú, ezen belül három kategóriába soroltam őket aszerint, hogy 100 kcal-ra mennyi fehérje jut. Mindegyik jól belefér a kalóriadeficitbe: attól függően válogathatsz közülük, hogy aznap mennyi fehérjére van még szükséged, és mennyi kalóriád maradt.</p><p>Diétában, kalóriadeficitben nagyon fontos, hogy testsúlykilogrammonként körülbelül 2 g fehérjét vigyél be. Ezek a receptek ennek a szabálynak a betartásában segítenek, erre készültek.</p><p>Minden recept átírható itt a weboldalon: a hozzávalók mennyisége és makrói személyre szabhatók, az értékek pedig azonnal újraszámolódnak.</p></div>
   </header>
   <section id="view"></section>
 </div>
 
 <script>
 const CATS = {
-  "extra-lean": { name: "Extra lean", blurb: "Magas fehérje, minimális zsír.", rule: "13 g fehérje / 100 kcal felett" },
-  "kozepes":    { name: "Közepes",    blurb: "Kiegyensúlyozott fogások.",      rule: "8–13 g fehérje / 100 kcal" },
-  "comfort":    { name: "Comfort",    blurb: "Kiadósabb, laktatóbb ételek.",   rule: "8 g fehérje / 100 kcal alatt" }
+  "extra-lean": { name: "Szálkás", blurb: "A legtöbb fehérje a legkevesebb kalóriából.", rule: "13 g fehérje / 100 kcal felett" },
+  "kozepes":    { name: "Kiegyensúlyozott", blurb: "Fehérje és laktatóság egyensúlyban.",      rule: "8–13 g fehérje / 100 kcal" },
+  "comfort":    { name: "Komfort", blurb: "Kiadósabb, laktatóbb ételek.",   rule: "8 g fehérje / 100 kcal alatt" }
 };
 
 // Makrók: becsült értékek, tápanyagtáblázatok alapján (kcal, fehérje g, szénhidrát g, zsír g)
