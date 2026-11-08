@@ -359,6 +359,16 @@ ol.steps li::before { background: var(--fill); color: var(--on); font-family: va
 .d-head .lede { display: grid; gap: 10px; max-width: 64ch; font-size: 16px; line-height: 1.6; color: var(--ink); }
 .d-head .lede p { margin: 0; }
 .d-head .lede .lede-lead { font-size: 19px; font-weight: 600; color: var(--ink); }
+.wrap:not(:has(.ribbons)) .d-head .lede { display: none; }
+.wrap:not(:has(.ribbons)) .d-head h1 { font-size: clamp(32px, 5vw, 48px); }
+.rd-photo { margin: 0; border-radius: 30px; overflow: hidden; aspect-ratio: 16 / 9; max-width: 100%; background: var(--hero); --tile-bg: var(--hero); --tile-fg: var(--cream); }
+.rd-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rd-photo button.notch-tile { border: 0; cursor: zoom-in; z-index: 1; }
+.rd-photo button.notch-tile:focus-visible { outline: 3px solid var(--fill); outline-offset: 2px; }
+.rd-zoom { padding: 0; border: 0; background: transparent; max-width: 94vw; max-height: 90vh; }
+.rd-zoom::backdrop { background: rgb(0 0 0 / .8); }
+.rd-zoom img { display: block; max-width: 94vw; max-height: 90vh; border-radius: 16px; }
+@media (max-width: 760px) { .rd-photo { aspect-ratio: 4 / 3; } }
 
 </style>
 </head>
@@ -966,6 +976,7 @@ const RECIPES = [
   {
     id: "konnyitett-tiramisu", cat: "comfort",
     title: "Könnyített tiramisu",
+    photo: "img/konnyitett-tiramisu.jpg", photoPos: "50% 100%", photoAlt: "Felülnézet a kakaós tetejű tiramisuról, mellette kávé és két babapiskóta",
     desc: "Klasszikus tiramisu mascarpone krémmel, a normál mascarpone kalóriájának alig több mint felével. Cukor csak a tojásfehérje habjába megy, minden más édesítőszerrel készül.",
     servings: 6, time: "kb. 30 perc + 2–3 óra hűtés",
     parts: [
@@ -1459,6 +1470,12 @@ function recipeHTML(r, routeKey) {
   const from = catOf(div(recipeTotal(r, routeKey || (r.variants && r.variants[0].key)), r.servings));
   return `
   <article class="recipe-d" data-cat="${cat}">
+    ${r.photo ? `<figure class="rd-photo notch">
+      <span class="notch-cut" aria-hidden="true"></span>
+      <button type="button" class="notch-tile" data-zoom aria-label="Kép nagyítása">${SVG.arrow}</button>
+      <img src="${r.photo}" alt="${esc(r.photoAlt || r.title)}"${r.photoPos ? ` style="object-position: ${r.photoPos}"` : ""}>
+    </figure>
+    <dialog class="rd-zoom"><img src="${r.photo}" alt="${esc(r.photoAlt || r.title)}"></dialog>` : ""}
     <header class="rd-hero notch tl">
       <span class="notch-cut" aria-hidden="true"></span>
       <a class="notch-tile" href="#${from}" aria-label="Vissza: ${CATS[from].name}" title="Vissza: ${CATS[from].name}">${SVG.back}</a>
@@ -1479,6 +1496,12 @@ function recipeHTML(r, routeKey) {
     ${summaryTables(r, parts)}
   </article>`;
 }
+document.addEventListener("click", e => {
+  const dlg = document.querySelector(".rd-zoom");
+  if (!dlg) return;
+  if (e.target.closest("[data-zoom]")) dlg.showModal();
+  else if (e.target.closest(".rd-zoom")) dlg.close();
+});
 render();
 </script>
 
