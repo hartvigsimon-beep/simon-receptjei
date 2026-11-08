@@ -369,6 +369,38 @@ ol.steps li::before { background: var(--fill); color: var(--on); font-family: va
 .rd-zoom::backdrop { background: rgb(0 0 0 / .8); }
 .rd-zoom img { display: block; max-width: 94vw; max-height: 90vh; border-radius: 16px; }
 @media (max-width: 760px) { .rd-photo { aspect-ratio: 4 / 3; } }
+.recipe-d, .cmp-body, .cmp-bars { grid-template-columns: minmax(0, 1fr); }
+.cmp { background: var(--surface); border-radius: 30px; padding: 26px 28px; display: block; min-width: 0; }
+.cmp summary { display: grid; gap: 12px; cursor: pointer; list-style: none; border-radius: 12px; }
+.cmp summary::-webkit-details-marker { display: none; }
+.cmp summary:focus-visible { outline: 3px solid var(--fill); outline-offset: 6px; }
+.cmp h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 5vw, 44px); line-height: 1; margin: 0; color: var(--ink); text-wrap: balance; }
+.cmp-lead { margin: 0; font-size: 17px; font-weight: 600; color: var(--ink); }
+.cmp-taste { margin: 0; max-width: 62ch; font-size: 16px; line-height: 1.55; color: var(--ink); }
+.cmp-more { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--ink); }
+.cmp-more svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.cmp[open] .cmp-more svg { transform: rotate(180deg); }
+.cmp-body { display: grid; gap: 20px; margin-top: 22px; min-width: 0; }
+.cmp-bars { display: grid; gap: 10px; }
+.cmp-bar { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; font-size: 15px; color: var(--ink); }
+.cmp-track { display: block; min-width: 0; }
+.cmp-fill { display: flex; align-items: center; justify-content: flex-end; height: 38px; padding-inline: 12px; border-radius: 10px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cmp-fill.old { background: var(--line); color: var(--ink); }
+.cmp-fill.new { background: var(--fill); color: var(--on); }
+.cmp-scroll { overflow-x: auto; min-width: 0; }
+.cmp table { width: 100%; min-width: 0; border-collapse: collapse; font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.cmp th, .cmp td { padding: 9px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.cmp th:first-child, .cmp td:first-child { text-align: left; white-space: normal; padding-left: 0; }
+.cmp th { font-weight: 600; color: var(--muted); font-size: 13px; }
+.cmp h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.cmp-note { margin: 0; font-size: 14px; color: var(--muted); max-width: 65ch; }
+@media (max-width: 760px) {
+  .cmp { padding: 20px; border-radius: 24px; }
+  .cmp-bar { grid-template-columns: 76px minmax(0, 1fr); }
+  .cmp table { font-size: 14px; }
+  .cmp th, .cmp td { padding: 8px 4px; }
+  .cmp th { font-size: 12px; letter-spacing: 0; white-space: normal; }
+}
 
 </style>
 </head>
@@ -912,6 +944,7 @@ const RECIPES = [
   {
     id: "csirkes-borsoleves", cat: "kozepes",
     title: "Csirkés borsóleves",
+    brand: "Anya Receptjei",
     desc: "Zöldborsós, répás leves tisztított csirkecombfiléval, könnyű pirospaprikás rántással.",
     servings: 2, serveNote: "1 adag = a leves fele", time: "kb. 45 perc",
     parts: [
@@ -977,6 +1010,12 @@ const RECIPES = [
     id: "konnyitett-tiramisu", cat: "comfort",
     title: "Könnyített tiramisu",
     photo: "img/konnyitett-tiramisu.jpg", photoPos: "50% 100%", photoAlt: "Felülnézet a kakaós tetejű tiramisuról, mellette kávé és két babapiskóta",
+    compare: {
+      total: { kcal: 2483.4, p: 50.0, c: 234.6, f: 136.9 },
+      taste: "Az ízéből és az állagából szinte semmit sem kell feladni: gondos keveréssel ugyanolyan krémes és ugyanolyan finom lesz, mint a klasszikus tiramisu.",
+      rows: [["Mascarpone", 1050, 570], ["Cukor", 233.5, 58.4], ["Babapiskóta", 760, 380], ["Keményítő", 0, 13.8]],
+      note: "Az eredeti a Szarvasi mascarpone csomagolásán szereplő recept. Becslés: 1 csomag babapiskóta 200 g, a kávéba 1 kiskanál cukor, ugyanannyi adagra osztva."
+    },
     desc: "Klasszikus tiramisu mascarpone krémmel, a normál mascarpone kalóriájának alig több mint felével. Cukor csak a tojásfehérje habjába megy, minden más édesítőszerrel készül.",
     servings: 4, time: "kb. 30 perc + 2–3 óra hűtés",
     parts: [
@@ -1462,6 +1501,43 @@ function homeHTML() {
     </a>`).join("")}</div>`;
 }
 
+let cmpOpen = false;
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("cmp")) cmpOpen = e.target.open; }, true);
+function compareHTML(r, now) {
+  const x = r.compare;
+  if (!x) return "";
+  const per = k => x.total[k] / r.servings;
+  const saved = Math.round(per("kcal") - now.kcal);
+  const row = (n, k) => `<tr><td>${n}</td><td>${fmt(per(k))} g</td><td>${fmt(now[k])} g</td></tr>`;
+  const sign = n => (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(Math.round(n));
+  return `<details class="cmp"${cmpOpen ? " open" : ""}>
+    <summary>
+      <h2>Az eredeti recepthez képest</h2>
+      <p class="cmp-lead">Adagonként ${saved} kcal-val kevesebb, közel ugyanannyi fehérjével.</p>
+      ${x.taste ? `<p class="cmp-taste">${esc(x.taste)}</p>` : ""}
+      <span class="cmp-more">Részletek <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+    </summary>
+    <div class="cmp-body">
+      <div class="cmp-bars">
+        <div class="cmp-bar"><span>Eredeti</span><span class="cmp-track"><span class="cmp-fill old" style="width:100%">${Math.round(per("kcal"))} kcal</span></span></div>
+        <div class="cmp-bar"><span>Könnyített</span><span class="cmp-track"><span class="cmp-fill new" style="width:${Math.min(100, now.kcal / per("kcal") * 100).toFixed(1)}%">${Math.round(now.kcal)} kcal</span></span></div>
+      </div>
+      <div class="cmp-scroll"><table>
+        <thead><tr><th>1 adag</th><th>Eredeti</th><th>Könnyített</th></tr></thead>
+        <tbody>${row("Fehérje", "p")}${row("Szénhidrát", "c")}${row("Zsír", "f")}</tbody>
+      </table></div>
+      ${recipeEdited(r) ? "" : `<div>
+        <h3>Ezeken múlik a különbség</h3>
+        <div class="cmp-scroll"><table>
+          <thead><tr><th>Egész recept, kcal</th><th>Eredeti</th><th>Könnyített</th><th>Eltérés</th></tr></thead>
+          <tbody>${x.rows.map(a => `<tr><td>${esc(a[0])}</td><td>${Math.round(a[1])}</td><td>${Math.round(a[2])}</td><td>${sign(a[2] - a[1])}</td></tr>`).join("")}</tbody>
+        </table></div>
+      </div>`}
+      <p class="cmp-note">${esc(x.note)}</p>
+    </div>
+  </details>`;
+}
+
 function recipeHTML(r, routeKey) {
   const vKey = r.variants ? (override || routeKey || r.variants[0].key) : null;
   const parts = partsOf(r, vKey);
@@ -1492,6 +1568,7 @@ function recipeHTML(r, routeKey) {
       ${variantSwitch(r, vKey)}
     </header>
     ${macroTiles(one, "Egy adag makrói")}
+    ${compareHTML(r, one)}
     ${parts.map(partHTML).join("")}
     ${summaryTables(r, parts)}
   </article>`;
@@ -1502,6 +1579,15 @@ document.addEventListener("click", e => {
   if (e.target.closest("[data-zoom]")) dlg.showModal();
   else if (e.target.closest(".rd-zoom")) dlg.close();
 });
+const dBaseRender = render;
+render = function () {
+  dBaseRender();
+  const id = location.hash.slice(1).split("-v-")[0];
+  const brand = (RECIPES.find(r => r.id === id) || {}).brand || "Simon Receptjei";
+  const h = document.querySelector(".d-head h1");
+  if (h) h.textContent = brand;
+  document.title = brand;
+};
 render();
 </script>
 
